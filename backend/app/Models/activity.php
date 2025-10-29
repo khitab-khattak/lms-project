@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class activity extends Model
+class Activity extends Model
 {
     //
 }
