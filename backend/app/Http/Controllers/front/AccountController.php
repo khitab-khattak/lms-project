@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {
@@ -32,5 +33,32 @@ class AccountController extends Controller
             'status'=>200,
             'message'=> 'User Register Successfully'
            ],200);
+    }
+    public function authenticate(Request $request){
+        $validator = Validator::make($request->all(),[
+            'email'=>'required',
+            'password'=>'required',
+        ]);
+        if($validator->fails()){
+           return response()->json([
+            'status'=>400,
+            'errors'=> $validator->errors()
+           ],400);
+        }
+        if(Auth::attempt(['email'=>$request->email,'password'=>$request->password])){
+            $user = User::find(Auth::user()->id);
+            $token = $user->createToken('token')->plainTextToken;
+            return response()->json([
+                'status'=> 200,
+                'token'=> $token,
+                'id'=> Auth::user()->id,
+                'name'=> Auth::user()->name,
+            ],200);
+        }else{
+            return response()->json([
+                'status'=> 401,
+                'message'=> 'Either Email/Password is in correct'
+            ]);
+        }
     }
 }
