@@ -11,6 +11,7 @@ import WatchCourse from './components/pages/account/WatchCourse'
 import Layout from './components/common/Layout'
 import MyLearning from './components/pages/account/MyLearning'
 import { Toaster } from 'react-hot-toast';
+import Dashboard from './components/pages/account/Dashboard'
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
       <Route path="/account/my-learning" element={<MyLearning/>}/>
       <Route path="/account/watch-course" element={<WatchCourse/>}/>
       <Route path="/header" element={<Layout/>}/>
+      <Route path="/account/dashboard" element={<Dashboard/>}/>
   
     </Routes>
     </BrowserRouter>

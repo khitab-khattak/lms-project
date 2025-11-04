@@ -11,8 +11,7 @@ const Login = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    setError,
+    formState: { errors }
   } = useForm();
 
   const onSubmit = (data) => {
@@ -38,10 +37,9 @@ const Login = () => {
           localStorage.setItem("userInfolms", JSON.stringify(userInfo));
 
           toast.success("Login successful!");
-          setTimeout(() => navigate("/"), 1500);
+          setTimeout(() => navigate("/account/dashboard"), 1500);
         } 
         else {
-          // ❌ wrong email/password
           toast.error(result.message);
         } 
       })
