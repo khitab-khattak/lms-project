@@ -12,6 +12,7 @@ import Layout from './components/common/Layout'
 import MyLearning from './components/pages/account/MyLearning'
 import { Toaster } from 'react-hot-toast';
 import Dashboard from './components/pages/account/Dashboard'
+import {RequireAuth} from './components/common/RequireAuth'
 
 function App() {
 
@@ -30,7 +31,13 @@ function App() {
       <Route path="/account/my-learning" element={<MyLearning/>}/>
       <Route path="/account/watch-course" element={<WatchCourse/>}/>
       <Route path="/header" element={<Layout/>}/>
-      <Route path="/account/dashboard" element={<Dashboard/>}/>
+      <Route path="/account/dashboard" element=
+      {
+        <RequireAuth>
+          <Dashboard/>
+        </RequireAuth>
+        
+      }/>
   
     </Routes>
     </BrowserRouter>

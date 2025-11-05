@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext } from "react";
+import { AuthContext } from "../context/Auth";
 import Layout from "../common/Layout";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -6,6 +7,7 @@ import { apiUrl } from "../common/Config";
 import toast from "react-hot-toast";
 
 const Login = () => {
+  const {login} = useContext(AuthContext)
   const navigate = useNavigate();
 
   const {
@@ -35,7 +37,7 @@ const Login = () => {
             token: result.token,
           };
           localStorage.setItem("userInfolms", JSON.stringify(userInfo));
-
+          login(userInfo)
           toast.success("Login successful!");
           setTimeout(() => navigate("/account/dashboard"), 1500);
         } 
