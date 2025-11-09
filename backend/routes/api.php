@@ -9,7 +9,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register',[AccountController::class,'register']);
 Route::post('/login',[AccountController::class,'authenticate']);
-Route::middleware('auth:sanctum')->post('/courses', [CourseController::class, 'store']);
+Route::middleware(['auth:sanctum'])->group( function(){
+    Route::post('/courses', [CourseController::class, 'store']);
+    Route::get('/courses/meta-data',[CourseController::class,'metaData']);
+});
 
 
 Route::get('/user', function (Request $request) {
