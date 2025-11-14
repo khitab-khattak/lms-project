@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 
 const EditCourse = () => {
   const params = useParams();
+  const [loading,setLoading] = useState(false);
 
   const { register, handleSubmit,reset, formState: { errors },setError } = useForm({
     defaultValues:async()=>{
@@ -82,6 +83,7 @@ const EditCourse = () => {
   // Submit course form
   const onSubmit = async (data) => {
     try {
+      setLoading(true);
       const res = await fetch(`${apiUrl}/courses/update/${params.id}`, {
         method: "PUT",
         headers: {
@@ -93,7 +95,8 @@ const EditCourse = () => {
       });
 
       const result = await res.json();
-      if (res.ok) {
+      setLoading(false);
+      if (res.status == 200) {
         toast.success(result.message);
       } else {
         if (result.errors) {
@@ -231,7 +234,7 @@ const EditCourse = () => {
                       </div>
 
                       <div className="mb-3">
-                        <button type="submit" className="btn btn-primary">Update</button>
+                        <button type="submit" disabled={loading} className="btn btn-primary">{loading == false ? 'update' : 'Please wait...'}</button>
                       </div>
 
                     </div>
