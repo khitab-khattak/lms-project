@@ -27,7 +27,7 @@ const CreateCourse = () => {
 
       if (res.ok) {
         toast.success(result.message)
-          navigate(`/account/courses/edit/${result.data.id}`)
+          navigate(`/account/courses/update/${result.data.id}`)
 
       } else {
         toast.error(result.message)

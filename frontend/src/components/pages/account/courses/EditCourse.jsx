@@ -1,15 +1,48 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../../../common/Layout";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import UserSidebar from "../../../common/UserSidebar";
 import { useForm } from "react-hook-form";
 import { apiUrl, token } from "../../../common/Config";
 import toast from "react-hot-toast";
 
 const EditCourse = () => {
-  const navigate = useNavigate();
+  const params = useParams();
 
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit,reset, formState: { errors },setError } = useForm({
+    defaultValues:async()=>{
+      try {
+        const res = await fetch(`${apiUrl}/courses/${params.id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        const result = await res.json();
+        console.log(result);
+        if (result.status === 200) {
+        reset({
+         title: result.data.title,
+         category : result.data.category_id,
+         level : result.data.level_id,
+         language : result.data.language_id,
+         sellPrice :result.data.price,
+         description:result.data.description,
+         crossPrice:result.data.cross_price,
+        })
+        } else {
+          toast.error("Failed to load course metadata");
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("An error occurred while fetching metadata");
+      }
+    }
+  }
+  );
 
   const [categories, setCategories] = useState([]);
   const [languages, setLanguages] = useState([]);
@@ -49,8 +82,8 @@ const EditCourse = () => {
   // Submit course form
   const onSubmit = async (data) => {
     try {
-      const res = await fetch(`${apiUrl}/courses`, {
-        method: "POST",
+      const res = await fetch(`${apiUrl}/courses/update/${params.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -62,9 +95,12 @@ const EditCourse = () => {
       const result = await res.json();
       if (res.ok) {
         toast.success(result.message);
-        navigate(`/account/courses/edit/${result.data.id}`);
       } else {
-        toast.error(result.message || "Failed to save course");
+        if (result.errors) {
+          Object.keys(result.errors).forEach((field) => {
+            setError(field, { message: result.errors[field][0] });
+          });
+        }
       }
     } catch (error) {
       console.error(error);
@@ -165,10 +201,9 @@ const EditCourse = () => {
                         <textarea
                           rows="4"
                           placeholder="Enter course description"
-                          {...register("description", { required: "The Description field is required" })}
-                          className={`form-control ${errors.description ? "is-invalid" : ""}`}
+                          {...register("description")}
+                          className={`form-control`}
                         ></textarea>
-                        {errors.description && <p className="invalid-feedback">{errors.description.message}</p>}
                       </div>
 
                       {/* Pricing */}

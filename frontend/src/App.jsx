@@ -13,8 +13,8 @@ import MyLearning from './components/pages/account/MyLearning'
 import { Toaster } from 'react-hot-toast';
 import Dashboard from './components/pages/account/Dashboard'
 import {RequireAuth} from './components/common/RequireAuth'
+import EditCourse from './components/pages/account/courses/EditCourse'
 import CreateCourse from './components/pages/account/courses/CreateCourse'
-import EditCourse from './components/pages/account/Courses/EditCourse'
 
 function App() {
 
@@ -40,7 +40,7 @@ function App() {
         </RequireAuth>
         
       }/>
-        <Route path="/account/courses/edit/:id" element=
+        <Route path="/account/courses/update/:id" element=
       {
         <RequireAuth>
           <EditCourse/>
