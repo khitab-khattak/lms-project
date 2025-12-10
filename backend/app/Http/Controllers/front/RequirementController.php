@@ -11,7 +11,7 @@ class RequirementController extends Controller
 {
     
     public function index(Request $request){
-        $requirements = requirement::where('course_id',$request->course_id)->get();
+        $requirements = Requirement::where('course_id',$request->course_id)->get();
         return response()->json([
             'status'=>200,
             'data'=>$requirements
@@ -38,7 +38,7 @@ class RequirementController extends Controller
         $requirement->save();
         return response()->json([
             'status'=>200,
-            'message'=>'requirement added Successfully'
+            'message'=>'Requirement added Successfully'
         ],200);
      }
       //this method will update requirement of a course
@@ -58,14 +58,14 @@ class RequirementController extends Controller
         if (!$requirement) {
             return response()->json([
                 'status' => 404,
-                'message' => 'requirement not found',
+                'message' => 'Requirement not found',
             ], 404);
         }
         $requirement->text = $request->requirement;
         $requirement->save();
         return response()->json([
             'status'=>200,
-            'message'=>'requirement updated Successfully'
+            'message'=>'Requirement updated Successfully'
         ],200);
      }
      //this method will delete the selected requirement of a course
@@ -74,13 +74,13 @@ class RequirementController extends Controller
         if (!$requirement) {
             return response()->json([
                 'status' => 404,
-                'message' => 'requirement not found',
+                'message' => 'Requirement not found',
             ], 404);
         }
         $requirement->delete();
         return response()->json([
             'status'=>200,
-            'message'=>'requirement deleted Successfully'
+            'message'=>'Requirement deleted Successfully'
         ],200);
      }
 }
