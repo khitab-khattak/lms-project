@@ -8,6 +8,7 @@ import { MdDragIndicator } from "react-icons/md";
 import { BsPencilSquare } from "react-icons/bs";
 import { FaTrashAlt } from "react-icons/fa";
 import UpdateOutcome from "./UpdateOutcome";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const ManageOutcome = () => {
   const [loading, setLoading] = useState(false);
@@ -22,8 +23,42 @@ const ManageOutcome = () => {
   };
 
   const params = useParams();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const reorderedItems = Array.from(outcomes);
+    const [movedItem] = reorderedItems.splice(result.source.index, 1);
+    reorderedItems.splice(result.destination.index, 0, movedItem);
+
+    setOutcomes(reorderedItems);
+    saveOrder(reorderedItems);
+  };
+
+  const saveOrder = async (updateOutcomes) => {
+    try {
+      await axios.post(`${apiUrl}/outcome/reorder`, {
+        items: updateOutcomes,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        }
+      });
+  
+      toast.success("Order updated");
+    } catch (error) {
+      toast.error("Failed to save order");
+    }
+  };
+  
   // Add outcome only
   const onSubmit = async (data) => {
     if (!data.outcome.trim()) return toast.error("Outcome cannot be empty");
@@ -81,7 +116,8 @@ const ManageOutcome = () => {
 
   // Delete outcome
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this outcome?")) return;
+    if (!window.confirm("Are you sure you want to delete this outcome?"))
+      return;
 
     try {
       const res = await axios.delete(`${apiUrl}/outcome/delete/${id}`, {
@@ -113,57 +149,84 @@ const ManageOutcome = () => {
       <div className="card shadow-lg border-0">
         <div className="card-body p-4">
           <h4 className="h5 mb-3">Add Outcome</h4>
-
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-3">
               <input
-                {...register("outcome", { required: "The Outcome field is required" })}
+                {...register("outcome", {
+                  required: "The Outcome field is required",
+                })}
                 type="text"
-                className={`form-control mb-3 ${errors.outcome ? "is-invalid" : ""}`}
+                className={`form-control mb-3 ${
+                  errors.outcome ? "is-invalid" : ""
+                }`}
                 placeholder="Outcome"
               />
-              {errors.outcome && <p className="invalid-feedback">{errors.outcome.message}</p>}
+              {errors.outcome && (
+                <p className="invalid-feedback">{errors.outcome.message}</p>
+              )}
             </div>
 
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
               {loading ? "Saving..." : "Save"}
             </button>
           </form>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="list">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="space-y-2"
+                >
+                  {outcomes.map((outcome, index) => (
+                    <Draggable
+                      key={outcome.id}
+                      draggableId={`${outcome.id}`}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="mt-2 border bg-white shadow-lg  rounded"
+                        >
+                          <div className="card-body p-2 d-flex align-items-center justify-content-between">
+                            <div className="me-2">
+                              <MdDragIndicator size={20} />
+                            </div>
 
-          <div className="mt-4">
-            <h5>Existing Outcomes:</h5>
+                            <div className="flex-grow-1">{outcome.text}</div>
 
-            {outcomes.length === 0 ? (
-              <p className="text-muted">No outcomes yet.</p>
-            ) : (
-              outcomes.map((outcome) => (
-                <div key={outcome.id} className="card mt-2">
-                  <div className="card-body p-2 d-flex align-items-center justify-content-between">
-                    <div className="me-2">
-                      <MdDragIndicator size={20} />
-                    </div>
-
-                    <div className="flex-grow-1">{outcome.text}</div>
-
-                    <div className="d-flex gap-2">
-                      <button
-                        className="btn btn-sm btn-outline-primary"
-                        onClick={() => handleShow(outcome)}
-                      >
-                        <BsPencilSquare />
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => handleDelete(outcome.id)}
-                      >
-                        <FaTrashAlt />
-                      </button>
-                    </div>
-                  </div>
+                            <div className="d-flex gap-2">
+                              <button
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() => handleShow(outcome)}
+                              >
+                                <BsPencilSquare />
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => handleDelete(outcome.id)}
+                              >
+                                <FaTrashAlt />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
                 </div>
-              ))
-            )}
-          </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+          
         </div>
       </div>
 

@@ -8,6 +8,7 @@ import { MdDragIndicator } from "react-icons/md";
 import { BsPencilSquare } from "react-icons/bs";
 import { FaTrashAlt } from "react-icons/fa";
 import UpdateRequirement from "./UpdateRequirement";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const ManageRequirement = () => {
     const [loading, setLoading] = useState(false);
@@ -22,6 +23,36 @@ const ManageRequirement = () => {
       };
       const params = useParams();
       const { register, handleSubmit, reset, formState: { errors } } = useForm();
+
+      //sort_order
+      const handleDragEnd = (result) => {
+        if (!result.destination) return;
+    
+        const reorderedItems = Array.from(requirements);
+        const [movedItem] = reorderedItems.splice(result.source.index, 1);
+        reorderedItems.splice(result.destination.index, 0, movedItem);
+    
+        setrequirements(reorderedItems);
+        saveOrder(reorderedItems);
+      };
+
+      const saveOrder = async (updaterequirements) => {
+        try {
+          await axios.post(`${apiUrl}/requirement/reorder`, {
+            items: updaterequirements,
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            }
+          });
+      
+          toast.success("Order updated");
+        } catch (error) {
+          toast.error("Failed to save order");
+        }
+      };
     
       // Add requirement only
       const onSubmit = async (data) => {
@@ -118,7 +149,7 @@ const ManageRequirement = () => {
               {...register("requirement", { required: "The Requirement field is required" })}
               type="text"
               className={`form-control mb-3 ${errors.requirement ? "is-invalid" : ""}`}
-              placeholder="requirement"
+              placeholder="Requirement"
             />
             {errors.requirement && <p className="invalid-feedback">{errors.requirement.message}</p>}
           </div>
@@ -127,41 +158,58 @@ const ManageRequirement = () => {
             {loading ? "Saving..." : "Save"}
           </button>
         </form>
-
-        <div className="mt-4">
-          <h5>Existing requirements:</h5>
-
-          {requirements.length === 0 ? (
-            <p className="text-muted">No requirements yet.</p>
-          ) : (
-            requirements.map((requirement) => (
-              <div key={requirement.id} className="card mt-2">
-                <div className="card-body p-2 d-flex align-items-center justify-content-between">
-                  <div className="me-2">
-                    <MdDragIndicator size={20} />
-                  </div>
-
-                  <div className="flex-grow-1">{requirement.text}</div>
-
-                  <div className="d-flex gap-2">
-                    <button
-                      className="btn btn-sm btn-outline-primary"
-                      onClick={() => handleShow(requirement)}
-                    >
-                      <BsPencilSquare />
-                    </button>
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => handleDelete(requirement.id)}
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+          <DragDropContext onDragEnd={handleDragEnd}>
+                    <Droppable droppableId="list">
+                      {(provided) => (
+                        <div
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                          className="space-y-2"
+                        >
+                          {requirements.map((requirement, index) => (
+                            <Draggable
+                              key={requirement.id}
+                              draggableId={`${requirement.id}`}
+                              index={index}
+                            >
+                              {(provided) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  className="mt-2 border bg-white shadow-lg  rounded"
+                                >
+                                  <div className="card-body p-2 d-flex align-items-center justify-content-between">
+                                    <div className="me-2">
+                                      <MdDragIndicator size={20} />
+                                    </div>
+        
+                                    <div className="flex-grow-1">{requirement.text}</div>
+        
+                                    <div className="d-flex gap-2">
+                                      <button
+                                        className="btn btn-sm btn-outline-primary"
+                                        onClick={() => handleShow(requirement)}
+                                      >
+                                        <BsPencilSquare />
+                                      </button>
+                                      <button
+                                        className="btn btn-sm btn-outline-danger"
+                                        onClick={() => handleDelete(requirement.id)}
+                                      >
+                                        <FaTrashAlt />
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
       </div>
     </div>
 

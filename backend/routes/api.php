@@ -22,6 +22,8 @@ Route::middleware(['auth:sanctum'])->group( function(){
     Route::post('/outcomes', [OutcomeController::class, 'store']);
     Route::put('/outcome/update/{id}', [OutcomeController::class, 'update']);
     Route::delete('/outcome/delete/{id}', [OutcomeController::class, 'destroy']);
+    Route::post('/outcome/reorder', [OutcomeController::class, 'reorder']);
+
 
 
         //requirement
@@ -29,6 +31,7 @@ Route::middleware(['auth:sanctum'])->group( function(){
         Route::post('/requirements', [RequirementController::class, 'store']);
         Route::put('/requirement/update/{id}', [RequirementController::class, 'update']);
         Route::delete('/requirement/delete/{id}', [RequirementController::class, 'destroy']);
+        Route::post('/requirement/reorder', [RequirementController::class, 'reorder']);
 
 });
 

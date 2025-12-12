@@ -61,7 +61,7 @@ const UpdateRequirement =  ({ handleClose, showrequirement, requirements, setreq
           </Modal.Header>
           <Modal.Body>
             <div className="mb-3">
-              <label htmlFor="requirement" className="form-label">requirement</label>
+              <label htmlFor="requirement" className="form-label">Requirement</label>
               <input
                 id="requirement"
                 type="text"

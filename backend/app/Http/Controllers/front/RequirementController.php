@@ -83,4 +83,21 @@ class RequirementController extends Controller
             'message'=>'Requirement deleted Successfully'
         ],200);
      }
+
+     public function reorder(Request $request)
+     {
+         $request->validate([
+             'items' => 'required|array',
+             'items.*.id' => 'required|integer'
+         ]);
+     
+         foreach ($request->items as $index => $item) {
+             Requirement::where('id', $item['id'])
+                 ->update(['sort_order' => $index + 1]);
+         }
+     
+         return response()->json([
+             'message' => 'Outcome order updated successfully'
+         ], 200);
+     }
 }
