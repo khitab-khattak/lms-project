@@ -9,6 +9,8 @@ use App\Models\Language;
 use App\Models\Level;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
+use Nette\Utils\Json;
 
 class CourseController extends Controller
 {
@@ -113,5 +115,37 @@ class CourseController extends Controller
         ], 200);
     }
     
+    public function courseImage($id,Request $request){
+        $validator = Validator::make($request->all(),([
+            'image'=>'required|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]));
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $course = Course::findOrFail($id);
+        if (!empty($course->image)) {
+            $oldPath = public_path("uploads/course/{$course->image}");
+            if (File::exists($oldPath)) {
+                File::delete($oldPath);
+            }
+        }
+        
+        if($request->hasFile('image')){
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/course'),$imageName);
+            $course->image= $imageName;
+            $course->save();
+        }
+        return response()->json([
+            'status'=> 200,
+            'message'=>'Image upload successfully',
+            'image'=> $course->image,
+        ],200);
+    }
 
 };
