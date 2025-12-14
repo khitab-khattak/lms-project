@@ -11,7 +11,9 @@ class RequirementController extends Controller
 {
     
     public function index(Request $request){
-        $requirements = Requirement::where('course_id',$request->course_id)->get();
+        $requirements = Requirement::where('course_id',$request->course_id)
+        ->orderBy('sort_number')
+        ->get();
         return response()->json([
             'status'=>200,
             'data'=>$requirements
