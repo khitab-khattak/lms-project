@@ -162,7 +162,7 @@ class CourseController extends Controller
             'status' => 200,
             'message' => 'Image & thumbnail uploaded successfully',
             'image' => $course->image,
-            'thumbnail' => 'uploads/course/small/' . $course->image
+            'course_small_image' => asset('uploads/course/small/' . $course->image),
         ], 200);
     }
 };

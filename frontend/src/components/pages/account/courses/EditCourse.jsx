@@ -7,10 +7,12 @@ import { apiUrl, token } from "../../../common/Config";
 import toast from "react-hot-toast";
 import ManageOutcome from "./ManageOutcome";
 import ManageRequirement from "./ManageRequirement";
+import EditCover from "./EditCover";
 
 const EditCourse = () => {
   const params = useParams();
   const [loading, setLoading] = useState(false);
+  const [course,setCourse] = useState([]);
 
   const {
     register,
@@ -42,6 +44,7 @@ const EditCourse = () => {
             description: result.data.description,
             crossPrice: result.data.cross_price,
           });
+          setCourse(result.data);
         } else {
           toast.error("Failed to load course metadata");
         }
@@ -322,6 +325,7 @@ const EditCourse = () => {
                 <div className="col-md-5">
                <ManageOutcome/>
                <ManageRequirement/>
+               <EditCover course={course} setCourse={setCourse}/>
                 </div>
               </div>
             </div>

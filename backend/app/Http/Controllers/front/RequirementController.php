@@ -12,7 +12,7 @@ class RequirementController extends Controller
     
     public function index(Request $request){
         $requirements = Requirement::where('course_id',$request->course_id)
-        ->orderBy('sort_number')
+        ->orderBy('sort_order')
         ->get();
         return response()->json([
             'status'=>200,
