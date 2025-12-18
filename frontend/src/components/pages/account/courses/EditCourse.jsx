@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import ManageOutcome from "./ManageOutcome";
 import ManageRequirement from "./ManageRequirement";
 import EditCover from "./EditCover";
+import ManageChapter from "./ManageChapter";
 
 const EditCourse = () => {
   const params = useParams();
@@ -319,13 +320,16 @@ const EditCourse = () => {
                       </div>
                     </div>
                   </form>
+                  <ManageChapter course={course} params={params} />
                 </div>
+                
 
                 {/* RIGHT SIDE — Outcome Card */}
                 <div className="col-md-5">
                <ManageOutcome/>
                <ManageRequirement/>
                <EditCover course={course} setCourse={setCourse}/>
+             
                 </div>
               </div>
             </div>
