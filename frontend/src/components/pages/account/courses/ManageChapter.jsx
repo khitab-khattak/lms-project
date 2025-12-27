@@ -4,9 +4,18 @@ import axios from "axios";
 import { apiUrl, token } from "../../../common/Config";
 import toast from "react-hot-toast";
 import Accordion from "react-bootstrap/Accordion";
+import UpdateChapter from "./UpdateChapter";
 
 const ManageChapter = ({ params, course }) => {
   const [loading, setLoading] = useState(false);
+  const [chapterData, setChapterData] = useState(null);
+
+  const [showChapter, setShowChapter] = useState(false);
+  const handleClose = () => setShowChapter(false);
+  const handleShow = (chapter) => {
+    setChapterData(chapter);
+    setShowChapter(true);
+  };
 
   const chapterReducer = (state, action) => {
     switch (action.type) {
@@ -15,11 +24,10 @@ const ManageChapter = ({ params, course }) => {
       case "ADD_CHAPTERS":
         return [...state, action.payload];
       case "UPDATE_CHAPTERS":
-        return state.map((chapter) => {
-          if (chapter.id === action.payload.id) {
-            return action.payload;
-          }
-        });
+        return state.map((chapter) =>
+          chapter.id === action.payload.id ? action.payload : chapter
+        );
+
       case "DELETE_CHAPTERS":
         return state.filter((chapter) => chapter.id != action.payload.id);
       default:
@@ -29,7 +37,6 @@ const ManageChapter = ({ params, course }) => {
 
   const [chapters, setChapters] = useReducer(chapterReducer, []);
 
- 
   const {
     register,
     handleSubmit,
@@ -59,11 +66,10 @@ const ManageChapter = ({ params, course }) => {
           type: "ADD_CHAPTERS",
           payload: res.data.data, // backend must return chapter
         });
-      
+
         toast.success(res.data.message);
         reset();
-      }
-      else {
+      } else {
         toast.error(res.data.message || "Failed to save chapter");
       }
     } catch (err) {
@@ -72,6 +78,31 @@ const ManageChapter = ({ params, course }) => {
     }
 
     setLoading(false);
+  };
+
+  const deleteChapter = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this outcome?"))
+      return;
+
+    try {
+      const res = await axios.delete(`${apiUrl}/chapter/delete/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+
+      if (res.data.status === 200) {
+        setChapters({ type: "DELETE_CHAPTERS", payload: {id} });
+        toast.success(res.data.message);
+      } else {
+        toast.error(res.data.message || "Failed to delete chapter");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error, please try again");
+    }
   };
   useEffect(() => {
     if (course.chapters) {
@@ -112,20 +143,30 @@ const ManageChapter = ({ params, course }) => {
           </form>
           <Accordion className="mt-4" defaultActiveKey="0">
             {chapters.map((chapter, index) => (
-              <Accordion.Item eventKey={index}>
+              <Accordion.Item eventKey={index} key={chapter.id}>
                 <Accordion.Header>{chapter.title}</Accordion.Header>
-
                 <Accordion.Body>
-                <div className='d-flex'>
-                  <button className="btn btn-danger btn-sm">Delete</button>
-                  <button className="btn btn-primary btn-sm ms-4">Update</button>
-                </div>
+                  <div className="d-flex">
+                    <button onClick={()=>deleteChapter(chapter.id)} className="btn btn-danger btn-sm">Delete Chapter</button>
+                    <button
+                      onClick={() => handleShow(chapter)}
+                      className="btn btn-primary btn-sm ms-4"
+                    >
+                      Update Chapter
+                    </button>
+                  </div>
                 </Accordion.Body>
               </Accordion.Item>
             ))}
           </Accordion>
         </div>
       </div>
+      <UpdateChapter
+        chapterData={chapterData}
+        showChapter={showChapter}
+        handleClose={handleClose}
+        setChapters={setChapters}
+      />
     </>
   );
 };
