@@ -6,5 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Lesson extends Model
 {
-    //
+    public function chapters(){
+        return $this->belongsTo(Chapter::class);
+    }
 }

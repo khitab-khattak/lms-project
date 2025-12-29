@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\front\OutcomeController;
 use App\Http\Controllers\front\ChapterController;
+use App\Http\Controllers\front\LessonController;
 use App\Http\Controllers\front\RequirementController;
 
 Route::post('/register', [AccountController::class, 'register']);
@@ -43,7 +44,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/chapter/update/{id}', [chapterController::class, 'update']);
     Route::delete('/chapter/delete/{id}', [chapterController::class, 'destroy']);
     Route::post('/chapter/reorder', [chapterController::class, 'reorder']);
+
+    //lessons
+    Route::get('/lessons', [lessonController::class, 'index']);
+    Route::post('/lessons', [lessonController::class, 'store']);
+    Route::put('/lesson/update/{id}', [lessonController::class, 'update']);
+    Route::delete('/lesson/delete/{id}', [lessonController::class, 'destroy']);
+    Route::post('/lesson/reorder', [lessonController::class, 'reorder']);
 });
+
 
 
 Route::get('/user', function (Request $request) {
