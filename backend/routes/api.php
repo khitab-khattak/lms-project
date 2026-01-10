@@ -46,11 +46,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/chapter/reorder', [chapterController::class, 'reorder']);
 
     //lessons
-    Route::get('/lessons', [lessonController::class, 'index']);
-    Route::post('/lessons', [lessonController::class, 'store']);
-    Route::put('/lesson/update/{id}', [lessonController::class, 'update']);
-    Route::delete('/lesson/delete/{id}', [lessonController::class, 'destroy']);
-    Route::post('/lesson/reorder', [lessonController::class, 'reorder']);
+    Route::post('/lessons', [LessonController::class, 'store']);
+    Route::put('/lesson/update/{id}', [LessonController::class, 'update']);
+    Route::get('/lesson/show/{id}', [LessonController::class, 'show']);
+    Route::delete('/lesson/delete/{id}', [LessonController::class, 'destroy']);
+    Route::post('/lesson/video/{id}', [LessonController::class, 'lessonVideo']);
+    Route::post('/lesson/reorder', [LessonController::class, 'reorder']);
 });
 
 

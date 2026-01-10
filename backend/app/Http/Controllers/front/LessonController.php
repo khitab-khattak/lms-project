@@ -6,18 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\File;
 
 class LessonController extends Controller
 {
-    public function index(Request $request){
-        $lessons = Lesson::where('course_id',$request->course_id)
-        ->orderBy('sort_order')
-        ->get();
+
+    public function show($id)
+{
+    $lesson = Lesson::find($id);
+
+    if (!$lesson) {
         return response()->json([
-            'status'=>200,
-            'data'=>$lessons
-        ],200);
+            'status' => 404,
+            'message' => 'Lesson not found',
+        ], 404);
     }
+
+    return response()->json([
+        'status' => 200,
+        'data' => $lesson
+    ], 200);
+}
+
      //this method will save lesson of a course
      public function store(Request $request){
         $validator = Validator::make($request->all(),
@@ -48,7 +60,8 @@ class LessonController extends Controller
       public function update(Request $request,$id){
         $validator = Validator::make($request->all(),
         [
-            'lesson'=>'required',
+            'title'=>'required',
+            'duration'=>'required|numeric|min:1'
         ]);
         if($validator->fails()){
             return response()->json([
@@ -58,7 +71,8 @@ class LessonController extends Controller
         }
 
         $lesson= Lesson::find($id);
-        $lesson->title = $request->lesson;
+        $lesson->title = $request->title;
+        $lesson->chapter_id = $request->chapter_id;
         $lesson->is_free_preview = ($request->free_preview == false)? 'no':'yes';
         $lesson->duration = $request->duration;
         $lesson->description = $request->description;
@@ -84,5 +98,57 @@ class LessonController extends Controller
             'status'=>200,
             'message'=>'lesson deleted Successfully'
         ],200);
+     }
+
+     public function lessonVideo($id, Request $request)
+     {
+         $lesson = Lesson::find($id);
+     
+         if (!$lesson) {
+             return response()->json([
+                 'status' => 404,
+                 'message' => 'Lesson not found.'
+             ], 404);
+         }
+     
+         $validator = Validator::make($request->all(), [
+             'video' => 'required|file|mimes:mp4,mov,avi|max:51200', // 50MB
+         ]);
+     
+         if ($validator->fails()) {
+             return response()->json([
+                 'status' => 400,
+                 'errors' => $validator->errors()
+             ], 400);
+         }
+     
+         if ($request->hasFile('video')) {
+     
+             $path = public_path('uploads/lesson/videos');
+     
+             // ✅ create folder if not exists
+             if (!File::exists($path)) {
+                 File::makeDirectory($path, 0755, true);
+             }
+     
+             // ✅ delete old video
+             if ($lesson->video && File::exists($path . '/' . $lesson->video)) {
+                 File::delete($path . '/' . $lesson->video);
+             }
+     
+             $video = $request->file('video');
+             $videoName = time() . '-' . $lesson->id . '.' . $video->getClientOriginalExtension();
+     
+             $video->move($path, $videoName);
+     
+             $lesson->video = $videoName;
+             $lesson->save();
+         }
+     
+         return response()->json([
+             'status' => 200,
+             'data' => $lesson,
+             'message' => 'Video uploaded successfully',
+         ], 200);
      }
 }

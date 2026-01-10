@@ -142,7 +142,7 @@ const EditCourse = () => {
               <div className="d-flex justify-content-between">
                 <h2 className="h4 mb-0 pb-0">Edit Course</h2>
                 <Link
-                  to="/account/my-courses/create"
+                  to="/account/courses/create"
                   className="btn btn-primary"
                 >
                   Back
