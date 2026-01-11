@@ -26,7 +26,10 @@ const ManageChapter = ({ params, course }) => {
   const[showLessonSortModal,setShowLessonSortModal]=useState(false);
   const handleCloseLessonSortModal = () => setShowLessonSortModal(false);
   const handleShowLessonSortModal = (chapter) => {
-    setLessonsData(chapter.lessons);
+    setLessonsData({
+      chapterId : chapter.id,
+      LessonsData : chapter.lessons
+    });
     setShowLessonSortModal(true);
     
   };
@@ -60,6 +63,16 @@ const ManageChapter = ({ params, course }) => {
           }
           return ch;
         });
+        case "REORDER_LESSONS":
+          return state.map((chapter) => {
+            if (chapter.id === action.payload.chapterId) {
+              return {
+                ...chapter,
+                lessons: action.payload.lessons,
+              };
+            }
+            return chapter;
+          });        
       case "DELETE_LESSON":
         return state.map((chapter) => ({
           ...chapter,
@@ -193,7 +206,7 @@ const ManageChapter = ({ params, course }) => {
             {chapters.map((chapter, index) => (
               <Accordion.Item eventKey={index} key={chapter.id}>
                 <Accordion.Header>
-                  <span className="fw-bold">{chapter.title}</span>
+                  <span className="fw-bold">{chapter.chapter || chapter.title}</span>
                 </Accordion.Header>
 
                 <Accordion.Body>
@@ -254,10 +267,8 @@ const ManageChapter = ({ params, course }) => {
                     )}
                   </div>
 
-                  <hr className="my-4 text-muted" />
-
                   {/* Chapter Actions */}
-                  <div className="d-flex  gap-2">
+                  <div className="d-flex   gap-2">
                     <button
                       onClick={() => deleteChapter(chapter.id)}
                       className="btn btn-outline-danger btn-sm px-3"
@@ -294,6 +305,7 @@ const ManageChapter = ({ params, course }) => {
       showLessonSortModal={showLessonSortModal}
       handleCloseLessonSortModal={handleCloseLessonSortModal}
       LessonsData={LessonsData}
+      setChapters = {setChapters}
       />
     </>
   );

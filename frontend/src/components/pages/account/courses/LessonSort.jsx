@@ -9,11 +9,14 @@ const LessonSort = ({
   showLessonSortModal,
   handleCloseLessonSortModal,
   LessonsData,
+  setChapters
 }) => {
   const [lessons, setLessons] = useState([]);
+  
   useEffect(() => {
-    if (LessonsData) {
-      setLessons(LessonsData);
+    // Correctly extracting the array from the object passed in LessonsData
+    if (LessonsData && LessonsData.LessonsData) {
+      setLessons(LessonsData.LessonsData);
     }
   }, [LessonsData]);
 
@@ -39,6 +42,13 @@ const LessonSort = ({
         }
       });
   
+      setChapters({
+        type: "REORDER_LESSONS",
+        payload: {
+          chapterId: LessonsData.chapterId,
+          lessons: updateLessons,
+        },
+      });
       toast.success("Lessons Order updated");
     } catch (error) {
       toast.error("Failed to save order");
@@ -62,7 +72,7 @@ const LessonSort = ({
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 {lessons.map((lesson, index) => (
                   <Draggable
-                    key={lesson.id}
+                    key={lesson.id.toString()}
                     draggableId={lesson.id.toString()}
                     index={index}
                   >
@@ -72,6 +82,10 @@ const LessonSort = ({
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                         className="border px-3 py-2 bg-white shadow-sm rounded mb-2"
+                        style={{
+                          ...provided.draggableProps.style,
+                          cursor: 'grab'
+                        }}
                       >
                         <h4 className="h5">{lesson.title}</h4>
                       </div>
