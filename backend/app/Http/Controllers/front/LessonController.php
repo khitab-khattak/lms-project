@@ -151,4 +151,22 @@ class LessonController extends Controller
              'message' => 'Video uploaded successfully',
          ], 200);
      }
+
+     public function reorder(Request $request)
+     {
+         $request->validate([
+             'items' => 'required|array',
+             'items.*.id' => 'required|integer'
+         ]);
+     
+         foreach ($request->items as $index => $item) {
+             Lesson::where('id', $item['id'])
+                 ->update(['sort_order' => $index + 1]);
+         }
+     
+         return response()->json([
+             'status' => 200,
+             'message' => 'Lessons order updated successfully'
+         ], 200);
+     }
 }

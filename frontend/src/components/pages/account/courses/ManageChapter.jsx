@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { FaPlus, FaTrashAlt } from "react-icons/fa";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 import CreateLesson from "./CreateLesson";
+import LessonSort from "./LessonSort";
 
 const ManageChapter = ({ params, course }) => {
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,16 @@ const ManageChapter = ({ params, course }) => {
   const handleShow = (chapter) => {
     setChapterData(chapter);
     setShowChapter(true);
+  };
+
+  const [LessonsData,setLessonsData] = useState([]);
+  //lesson sort modal
+  const[showLessonSortModal,setShowLessonSortModal]=useState(false);
+  const handleCloseLessonSortModal = () => setShowLessonSortModal(false);
+  const handleShowLessonSortModal = (chapter) => {
+    setLessonsData(chapter.lessons);
+    setShowLessonSortModal(true);
+    
   };
 
   const [showLesson, setShowLesson] = useState(false);
@@ -189,7 +200,7 @@ const ManageChapter = ({ params, course }) => {
                   {/* Header */}
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <h4 className="mb-0 h5">Lessons</h4>
-                    <a className="text-primary" href=""><strong>Reorder Lessons</strong></a>
+                    <Link className="text-primary" onClick={()=> handleShowLessonSortModal(chapter)}><strong>Reorder Lessons</strong></Link>
                   </div>
 
                   {/* Lessons List */}
@@ -278,6 +289,11 @@ const ManageChapter = ({ params, course }) => {
         chapters={chapters}
         setChapters={setChapters}
         params={params}
+      />
+      <LessonSort
+      showLessonSortModal={showLessonSortModal}
+      handleCloseLessonSortModal={handleCloseLessonSortModal}
+      LessonsData={LessonsData}
       />
     </>
   );
