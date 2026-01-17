@@ -8,12 +8,13 @@ import toast from "react-hot-toast";
 import ManageOutcome from "./ManageOutcome";
 import ManageRequirement from "./ManageRequirement";
 import EditCover from "./EditCover";
+import axios from "axios";
 import ManageChapter from "./ManageChapter";
 
 const EditCourse = () => {
   const params = useParams();
   const [loading, setLoading] = useState(false);
-  const [course,setCourse] = useState([]);
+  const [course, setCourse] = useState([]);
 
   const {
     register,
@@ -87,6 +88,38 @@ const EditCourse = () => {
     }
   };
 
+  const changeStatus = async (course) => {
+    try {
+      const status = course.status === 1 ? 0 : 1;
+  
+      const res = await axios.post(
+        `${apiUrl}/change-status/${params.id}`,
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      if (res.data.status === 200) {
+        toast.success(res.data.message);
+  
+        setCourse(
+         {...course, status:res.data.course.status,}
+        );
+      } else {
+        toast.error(res.data.message || "Failed to update status");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+    }
+  };
+  
+
   useEffect(() => {
     courseMetaData();
   }, []);
@@ -141,12 +174,24 @@ const EditCourse = () => {
             <div className="col-md-12 mt-5 mb-3">
               <div className="d-flex justify-content-between">
                 <h2 className="h4 mb-0 pb-0">Edit Course</h2>
-                <Link
-                  to="/account/courses/create"
-                  className="btn btn-primary"
-                >
-                  Back
-                </Link>
+                 {  
+                 course.status == 1 &&
+                   <Link
+                   className="btn btn-light border text-dark"
+                   onClick={()=>{changeStatus(course)}}
+                 >
+                   Publish
+                 </Link>
+                 }
+                   {  
+                 course.status == 0 &&
+                   <Link
+                   className="btn btn-primary"
+                   onClick={()=>{changeStatus(course)}}
+                 >
+                  Unpublish
+                 </Link>
+                 }
               </div>
             </div>
 
@@ -322,14 +367,12 @@ const EditCourse = () => {
                   </form>
                   <ManageChapter course={course} params={params} />
                 </div>
-                
 
                 {/* RIGHT SIDE — Outcome Card */}
                 <div className="col-md-5">
-               <ManageOutcome/>
-               <ManageRequirement/>
-               <EditCover course={course} setCourse={setCourse}/>
-             
+                  <ManageOutcome />
+                  <ManageRequirement />
+                  <EditCover course={course} setCourse={setCourse} />
                 </div>
               </div>
             </div>
