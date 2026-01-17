@@ -10,6 +10,8 @@ import { FaPlus, FaTrashAlt } from "react-icons/fa";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 import CreateLesson from "./CreateLesson";
 import LessonSort from "./LessonSort";
+import { AiOutlineDrag } from "react-icons/ai";
+import ChapterSort from "./ChapterSort";
 
 const ManageChapter = ({ params, course }) => {
   const [loading, setLoading] = useState(false);
@@ -21,17 +23,16 @@ const ManageChapter = ({ params, course }) => {
     setShowChapter(true);
   };
 
-  const [LessonsData,setLessonsData] = useState([]);
+  const [LessonsData, setLessonsData] = useState([]);
   //lesson sort modal
-  const[showLessonSortModal,setShowLessonSortModal]=useState(false);
+  const [showLessonSortModal, setShowLessonSortModal] = useState(false);
   const handleCloseLessonSortModal = () => setShowLessonSortModal(false);
   const handleShowLessonSortModal = (chapter) => {
     setLessonsData({
-      chapterId : chapter.id,
-      LessonsData : chapter.lessons
+      chapterId: chapter.id,
+      LessonsData: chapter.lessons,
     });
     setShowLessonSortModal(true);
-    
   };
 
   const [showLesson, setShowLesson] = useState(false);
@@ -39,6 +40,13 @@ const ManageChapter = ({ params, course }) => {
   const handleShowLesson = (chapter) => {
     setChapterData(chapter);
     setShowLesson(true);
+  };
+
+  const [showChapterSortModal, setShowChapterSortModal] = useState(false);
+  const handleCloseChapterSortModal = () => setShowChapterSortModal(false);
+  const handleShowChapterSortModal = (chapter) => {
+    setChapterData(chapter);
+    setShowChapterSortModal(true);
   };
 
   const chapterReducer = (state, action) => {
@@ -63,16 +71,18 @@ const ManageChapter = ({ params, course }) => {
           }
           return ch;
         });
-        case "REORDER_LESSONS":
-          return state.map((chapter) => {
-            if (chapter.id === action.payload.chapterId) {
-              return {
-                ...chapter,
-                lessons: action.payload.lessons,
-              };
-            }
-            return chapter;
-          });        
+      case "REORDER_LESSONS":
+        return state.map((chapter) => {
+          if (chapter.id === action.payload.chapterId) {
+            return {
+              ...chapter,
+              lessons: action.payload.lessons,
+            };
+          }
+          return chapter;
+        });
+      case "REORDER_CHAPTERS":
+        return action.payload;
       case "DELETE_LESSON":
         return state.map((chapter) => ({
           ...chapter,
@@ -174,15 +184,27 @@ const ManageChapter = ({ params, course }) => {
     <>
       <div className="card shadow-lg border-0 mt-3">
         <div className="card-body p-4">
-          <div className="d-flex justify-content-between">
-            <h4 className="h5 mb-3">Add chapter</h4>
-            <button
-              className="btn btn-link p-0 text-decoration-none"
-              onClick={() => handleShowLesson()}
-            >
-              <FaPlus size={12} /> <strong>Add Lesson</strong>
-            </button>
+          <div className="d-flex">
+          <div className="d-flex justify-content-between w-100">
+            <h4 className="h5 mb-3">Chapters</h4>
+            <div className="d-flex gap-1">
+              <Link
+                onClick={handleShowLesson}
+              >
+                <FaPlus size={12} /> <strong>Add Lesson</strong>
+              </Link>
+
+              <Link
+                type="button"
+                className="ms-2"
+                onClick={handleShowChapterSortModal}
+              >
+                <AiOutlineDrag  /> <strong>Reorder Chapters</strong>
+              </Link>
+            </div>
           </div>
+          </div>
+          
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-3">
@@ -206,14 +228,21 @@ const ManageChapter = ({ params, course }) => {
             {chapters.map((chapter, index) => (
               <Accordion.Item eventKey={index} key={chapter.id}>
                 <Accordion.Header>
-                  <span className="fw-bold">{chapter.chapter || chapter.title}</span>
+                  <span className="fw-bold">
+                    {chapter.chapter || chapter.title}
+                  </span>
                 </Accordion.Header>
 
                 <Accordion.Body>
                   {/* Header */}
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <h4 className="mb-0 h5">Lessons</h4>
-                    <Link className="text-primary" onClick={()=> handleShowLessonSortModal(chapter)}><strong>Reorder Lessons</strong></Link>
+                    <Link
+                      className="text-primary"
+                      onClick={() => handleShowLessonSortModal(chapter)}
+                    >
+                      <strong>Reorder Lessons</strong>
+                    </Link>
                   </div>
 
                   {/* Lessons List */}
@@ -302,10 +331,16 @@ const ManageChapter = ({ params, course }) => {
         params={params}
       />
       <LessonSort
-      showLessonSortModal={showLessonSortModal}
-      handleCloseLessonSortModal={handleCloseLessonSortModal}
-      LessonsData={LessonsData}
-      setChapters = {setChapters}
+        showLessonSortModal={showLessonSortModal}
+        handleCloseLessonSortModal={handleCloseLessonSortModal}
+        LessonsData={LessonsData}
+        setChapters={setChapters}
+      />
+      <ChapterSort
+        showChapterSortModal={showChapterSortModal}
+        handleCloseChapterSortModal={handleCloseChapterSortModal}
+        setChapters={setChapters}
+        chapters={chapters}
       />
     </>
   );

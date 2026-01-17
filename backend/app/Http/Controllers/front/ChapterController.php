@@ -84,7 +84,7 @@ class ChapterController extends Controller
         $chapter->delete();
         return response()->json([
             'status'=>200,
-            'message'=>'chapter deleted Successfully'
+            'message'=>'Chapter deleted Successfully'
         ],200);
      }
 
@@ -104,6 +104,7 @@ class ChapterController extends Controller
         'message' => 'Chapter order updated successfully'
     ], 200);
 }
+
 
 }
 
