@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\front\OutcomeController;
 use App\Http\Controllers\front\ChapterController;
+use App\Http\Controllers\front\HomeController;
 use App\Http\Controllers\front\LessonController;
 use App\Http\Controllers\front\RequirementController;
 
@@ -56,6 +57,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/my-courses', [AccountController::class, 'courses']);
     Route::delete('/course/delete/{id}', [CourseController::class, 'deleteCourse']);
+    Route::get('/fetch-categories',[HomeController::class,'fetch_categories']);
+    Route::get('/featured-courses',[HomeController::class,'featuredCourses']);
 });
 
 

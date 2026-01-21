@@ -89,7 +89,8 @@ class CourseController extends Controller
             'category'  => 'required|integer',
             'level'     => 'required|integer',
             'language'  => 'required|integer',
-            'sellPrice' => 'required|numeric',
+            'sellPrice' => 'nullable|numeric|min:0',
+            'crossPrice' =>'nullable|numeric|min:0'
         ]);
 
         if ($validator->fails()) {
@@ -107,7 +108,9 @@ class CourseController extends Controller
         $course->description  = $request->description;
         $course->price        = $request->sellPrice;
         $course->cross_price  = $request->crossPrice;
-        $course->status       = 0;
+        if ($request->has('status')) {
+            $course->status = $request->status;
+        }
 
         $course->save();
 

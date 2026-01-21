@@ -330,9 +330,7 @@ const EditCourse = () => {
                           <input
                             type="number"
                             placeholder="Enter course price"
-                            {...register("sellPrice", {
-                              required: "The Sell Price field is required",
-                            })}
+                            {...register("sellPrice")}
                             className={`form-control ${
                               errors.sellPrice ? "is-invalid" : ""
                             }`}
