@@ -174,8 +174,9 @@ const EditCourse = () => {
             <div className="col-md-12 mt-5 mb-3">
               <div className="d-flex justify-content-between">
                 <h2 className="h4 mb-0 pb-0">Edit Course</h2>
-                 {  
-                 course.status == 1 &&
+               <div className="d-flex ">
+               {  
+                 course.status == 0 &&
                    <Link
                    className="btn btn-light border text-dark"
                    onClick={()=>{changeStatus(course)}}
@@ -184,7 +185,7 @@ const EditCourse = () => {
                  </Link>
                  }
                    {  
-                 course.status == 0 &&
+                 course.status == 1 &&
                    <Link
                    className="btn btn-primary"
                    onClick={()=>{changeStatus(course)}}
@@ -192,6 +193,13 @@ const EditCourse = () => {
                   Unpublish
                  </Link>
                  }
+                 <Link
+                   className="btn btn-secondary ms-2"
+                   to={`/account/my-courses`}
+                 >
+                  Back
+                 </Link>
+               </div>
               </div>
             </div>
 

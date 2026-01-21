@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
+use App\Models\Chapter;
+use App\Models\Lesson;
 
 class CourseController extends Controller
 {
@@ -55,7 +57,7 @@ class CourseController extends Controller
     }
     public function show($id)
     {
-        $course = Course::with(['chapters','chapters.lessons'])->find($id);
+        $course = Course::with(['chapters', 'chapters.lessons'])->find($id);
         if ($course == null) {
             return response()->json([
                 'status' => 401,
@@ -160,28 +162,80 @@ class CourseController extends Controller
 
         return response()->json([
             'status' => 200,
-            'message' => 'Image & thumbnail uploaded successfully',
+            'message' => 'Course image uploaded successfully',
             'image' => $course->image,
             'course_small_image' => asset('uploads/course/small/' . $course->image),
         ], 200);
     }
 
-    public function changeStatus($id, Request $request){
+    public function changeStatus($id, Request $request)
+    {
         $course = Course::find($id);
-        if($course == null){
+        if ($course == null) {
             return response()->json([
-                'status'=>404,
-                'message'=>'Course Not Found'
-            ],404);
+                'status' => 404,
+                'message' => 'Course Not Found'
+            ], 404);
         }
-        $course->status= $request->status;
+        $course->status = $request->status;
         $course->save();
 
-        $message=($course->status === 1) ? 'Course Published Successfully':'Course Unpublished Successfully';
+        $message = ($course->status === 1) ? 'Course Published Successfully' : 'Course Unpublished Successfully';
         return response()->json([
-            'status'=>200,
-            'message'=>$message,
-            'course'=>$course,
-        ],200);
+            'status' => 200,
+            'message' => $message,
+            'course' => $course,
+        ], 200);
+    }
+
+
+    public function deleteCourse(Request $request, $id)
+    {
+        // 1. Find the course
+        $course = Course::where('id', $id)
+                        ->where('user_id', $request->user()->id)
+                        ->first();
+    
+        if ($course == null) {
+            return response()->json(['message' => 'Course Not Found']);
+        }
+    
+        if ($course->image) {
+            $imagePath = public_path('uploads/course/' . $course->image);
+            
+            if (File::exists($imagePath)) {
+                File::delete($imagePath);
+            }
+        }
+    
+        if (!empty($course->course_small_image)) {
+            $smallPath = public_path('uploads/course/small/' . $course->course_small_image);
+            if (File::exists($smallPath)) {
+                File::delete($smallPath);
+            }
+        }
+        $chapters = Chapter::where('course_id', $course->id)->get();
+    
+        foreach ($chapters as $chapter) {
+            // Get lessons for this chapter
+            $lessons = Lesson::where('chapter_id', $chapter->id)->get();
+    
+            foreach ($lessons as $lesson) {
+                // Check if lesson has a video
+                if ($lesson->video) {
+                    $videoPath = public_path('uploads/lesson/videos/' . $lesson->video);
+    
+                    if (File::exists($videoPath)) {
+                        File::delete($videoPath);
+                    }
+                }
+            }
+        }
+        $course->delete();
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'Course and associated files deleted successfully'
+        ], 200);
     }
 };

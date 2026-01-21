@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\front;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -60,5 +61,16 @@ class AccountController extends Controller
                 'message'=> 'Either Email/Password is in correct'
             ]);
         }
+    }
+
+    public function courses(Request $request){
+        $userId = $request->user()->id;
+        $courses = Course::where('user_id',$userId)
+        ->with('levels')
+        ->get();
+        return response()->json([
+            'status'=>200,
+            'courses'=>$courses
+        ],200);
     }
 }

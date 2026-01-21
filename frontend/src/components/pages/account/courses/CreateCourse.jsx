@@ -12,6 +12,7 @@ const CreateCourse = () => {
     handleSubmit,
     formState: { errors }
   } = useForm();
+  
   const onSubmit = async(data)=>{
     const res = await fetch(`${apiUrl}/courses`, {
         method: 'POST',
@@ -27,7 +28,7 @@ const CreateCourse = () => {
 
       if (res.ok) {
         toast.success(result.message)
-          navigate(`/account/courses/update/${result.data.id}`)
+          navigate(`/account/courses/edit/${result.data.id}`)
 
       } else {
         toast.error(result.message)

@@ -19,4 +19,8 @@ class Course extends Model
     public function chapters(){
         return $this->hasMany(Chapter::class);
     }
+
+    public function levels(){
+        return $this->belongsTo(Level::class,'level_id');
+    }
 }

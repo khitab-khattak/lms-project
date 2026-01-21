@@ -44,8 +44,13 @@ const EditCover = ({ course, setCourse }) => {
                   setCourse(updateCourseData);
                   setFiles([]);
                 },
-                onerror: (errors) => {
-                  console.log(errors);
+                onerror: (response) => {
+                  try {
+                    const res = JSON.parse(response);
+                    toast.error(res.errors.image[0]);
+                  } catch {
+                    toast.error("Image upload failed");
+                  }
                 },
               },
             }}
