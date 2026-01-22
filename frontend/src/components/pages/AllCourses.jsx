@@ -1,16 +1,86 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../common/Layout";
 import Course from "../common/Course";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl, token } from "../common/Config";
 
 const AllCourses = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
   const [levels, setLevels] = useState([]);
   const [languages, setLanguages] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [categoryChecked, setCategoryChecked] = useState(() => {
+    const category = searchParams.get("category");
+    return category ? category.split(",") : [];
+  });
+
+  const [levelChecked, setLevelChecked] = useState(() => {
+    const level = searchParams.get("level");
+    return level ? level.split(",") : [];
+  });
+
+  const [languageChecked, setLanguageChecked] = useState(() => {
+    const language = searchParams.get("language");
+    return language ? language.split(",") : [];
+  });
+
+  const handleCategory = (e) => {
+    const { value, checked } = e.target;
+    if (checked) {
+      setCategoryChecked((prev) => [...prev, value]);
+    } else {
+      setCategoryChecked((prev) => prev.filter((id) => id != value));
+    }
+  };
+
+  const handleLevel = (e) => {
+    const { value, checked } = e.target;
+    if (checked) {
+      setLevelChecked((prev) => [...prev, value]);
+    } else {
+      setLevelChecked((prev) => prev.filter((id) => id != value));
+    }
+  };
+
+  const handleLanguage = (e) => {
+    const { value, checked } = e.target;
+    if (checked) {
+      setLanguageChecked((prev) => [...prev, value]);
+    } else {
+      setLanguageChecked((prev) => prev.filter((id) => id != value));
+    }
+  };
+
   const fetchCourses = async () => {
-    const res = await axios.get(`${apiUrl}/featured-courses`, {
+    let search = [];
+    let params = "";
+    if (categoryChecked.length > 0) {
+      search.push(["category", categoryChecked.join(",")]);
+    }
+    if (search.length > 0) {
+      params = new URLSearchParams(search);
+      setSearchParams(params);
+    }
+    //level
+    if (levelChecked.length > 0) {
+      search.push(["level", levelChecked.join(",")]);
+    }
+    if (search.length > 0) {
+      params = new URLSearchParams(search);
+      setSearchParams(params);
+    }
+    //language
+    if (languageChecked.length > 0) {
+      search.push(["language", languageChecked.join(",")]);
+    }
+    if (search.length > 0) {
+      params = new URLSearchParams(search);
+      setSearchParams(params);
+    }
+    const res = await axios.get(`${apiUrl}/all-courses?${params}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
@@ -19,7 +89,6 @@ const AllCourses = () => {
     });
     if (res.data.status == 200) {
       setCourses(res.data.courses);
-      console.log(res.data.courses);
     } else {
       console.log("something went wrong");
     }
@@ -68,13 +137,16 @@ const AllCourses = () => {
       console.log("something went wrong");
     }
   };
- 
   useEffect(() => {
-    fetchCourses();
     fetchlanguages();
     fetchCategories();
     fetchLevels();
-  },[]);
+  }, []);
+  useEffect(() => {
+    fetchCourses();
+    console.log(categoryChecked);
+  }, [categoryChecked, levelChecked, languageChecked]);
+
   return (
     <Layout>
       <div className="container pb-5 pt-3">
@@ -92,11 +164,15 @@ const AllCourses = () => {
           <div className="col-lg-3">
             <div className="sidebar mb-5 card border-0">
               <div className="card-body shadow">
+                <div className="mb-3 input-group ">
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Search by keyword"
                 />
+                <button className="btn btn-primary btn-sm">Search</button>
+                </div>
+                
 
                 <div className="pt-3">
                   <h3 className="h5 mb-2">Category</h3>
@@ -106,14 +182,24 @@ const AllCourses = () => {
                         <li key={category.id}>
                           <div className="form-check">
                             <input
+                              onClick={(e) => {
+                                handleCategory(e);
+                              }}
+                              defaultChecked={
+                                searchParams.get("category")
+                                  ? searchParams
+                                      .get("category")
+                                      .includes(category.id)
+                                  : false
+                              }
                               className="form-check-input"
                               type="checkbox"
-                              value=""
-                              id="flexCheckDefault"
+                              value={category.id}
+                              id={`category-${category.id}`}
                             />
                             <label
                               className="form-check-label"
-                              htmlFor="flexCheckDefault"
+                              htmlFor={`category-${category.id}`}
                             >
                               {category.name}
                             </label>
@@ -128,9 +214,17 @@ const AllCourses = () => {
                   <ul>
                     {levels.map((level) => {
                       return (
-                        <li>
+                        <li key={level.id}>
                           <div className="form-check">
                             <input
+                              onClick={(e) => {
+                                handleLevel(e);
+                              }}
+                              defaultChecked={
+                                searchParams.get("level")
+                                  ? searchParams.get("level").includes(level.id)
+                                  : false
+                              }
                               className="form-check-input"
                               type="checkbox"
                               value={level.id}
@@ -153,9 +247,19 @@ const AllCourses = () => {
                   <ul>
                     {languages.map((language) => {
                       return (
-                        <li>
+                        <li key={language.id}>
                           <div className="form-check">
                             <input
+                              onClick={(e) => {
+                                handleLanguage(e);
+                              }}
+                              defaultChecked={
+                                searchParams.get("language")
+                                  ? searchParams
+                                      .get("language")
+                                      .includes(language.id)
+                                  : false
+                              }
                               className="form-check-input"
                               type="checkbox"
                               value={language.id}
@@ -201,7 +305,6 @@ const AllCourses = () => {
                     />
                   );
                 })}
-               
               </div>
             </section>
           </div>

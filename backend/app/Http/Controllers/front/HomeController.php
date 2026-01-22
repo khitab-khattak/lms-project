@@ -13,7 +13,7 @@ class HomeController extends Controller
 {
     public function fetch_categories()
     {
-        $categories = Category::orderBy('name', 'ASC')->get();
+        $categories = Category::orderBy('created_at', 'ASC')->get();
         if ($categories == null) {
             return response()->json([
                 'message' => 'Categories not found'
@@ -84,7 +84,7 @@ class HomeController extends Controller
             }
         }
 
-        $courses = $courses->get();
+        $courses = $courses->orderBy('title','ASC')->get();
 
 
         return response()->json([
