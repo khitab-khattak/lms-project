@@ -1,8 +1,8 @@
 import React from 'react'
 
-const Course = ({course}) => {
+const Course = ({course,customClasses}) => {
   return (
-    <div className="col-lg-3 col-md-6">
+    <div className={customClasses}>
         <div className='card border-0'>
             <div className='card-img-top'>
                 
@@ -51,7 +51,7 @@ const Course = ({course}) => {
             <div className="card-footer bg-white">
                 <div className="d-flex py-2 justify-content-between align-items-center">
                 {course.price && <div className="price">${course.price}</div> }
-                {course.price == null && <div className="price">Free Course</div>}
+                {course.price == null && <div className="price">$0</div>}
                     
                     <div className="add-to-cart">
                         <a href="/detail" className="btn btn-primary" >Read More</a>

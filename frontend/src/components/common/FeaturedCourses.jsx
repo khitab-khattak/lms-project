@@ -35,7 +35,7 @@ const FeaturedCourses = () => {
         </div>
         <div className="row gy-4">
           {featuredCourses.map((course) => {
-            return <Course key={course.id} course={course} />;
+            return <Course key={course.id} course={course} customClasses="col-lg-3 col-md-6" />;
           })}
         </div>
       </div>

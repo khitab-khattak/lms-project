@@ -59,6 +59,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/course/delete/{id}', [CourseController::class, 'deleteCourse']);
     Route::get('/fetch-categories',[HomeController::class,'fetch_categories']);
     Route::get('/featured-courses',[HomeController::class,'featuredCourses']);
+    Route::get('/all-courses',[HomeController::class,'courses']);
+    Route::get('/levels',[HomeController::class,'levels']);
+    Route::get('/languages',[HomeController::class,'languages']);
 });
 
 

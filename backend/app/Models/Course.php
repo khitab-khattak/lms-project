@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Course extends Model
 {
     protected $appends = ['course_small_image'];
+    protected $casts = [
+        'price' => 'float',       // Converts "10.00" -> 10
+        'cross_price' => 'float', // Converts "10.00" -> 10
+    ];
 
     function getCourseSmallImageAttribute(){
         if($this->image== ""){
