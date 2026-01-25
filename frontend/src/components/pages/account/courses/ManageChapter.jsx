@@ -255,12 +255,12 @@ const ManageChapter = ({ params, course }) => {
                         >
                           <div className="row align-items-center">
                             {/* Left */}
-                            <div className="col-md-8 col-12">
+                            <div className="col-md-7 col-12">
                               <h6 className="mb-0 text-dark">{lesson.title}</h6>
                             </div>
 
                             {/* Right */}
-                            <div className="col-md-4 d-flex align-items-center justify-content-md-end mt-2 mt-md-0">
+                            <div className="col-md-5 d-flex align-items-center justify-content-md-end mt-2 mt-md-0">
                               {lesson.duration > 0 && (
                                 <small className="text-muted fw-bold me-3 text-nowrap">
                                   {lesson.duration} mins

@@ -11,7 +11,8 @@ const AllCourses = () => {
   const [levels, setLevels] = useState([]);
   const [languages, setLanguages] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [sort,setSort] = useState('desc');
+  const [keyword, setKeyword] = useState("");
   const [categoryChecked, setCategoryChecked] = useState(() => {
     const category = searchParams.get("category");
     return category ? category.split(",") : [];
@@ -80,6 +81,17 @@ const AllCourses = () => {
       params = new URLSearchParams(search);
       setSearchParams(params);
     }
+    if (keyword.length > 0) {
+      search.push(["keyword", keyword]);
+    }
+    
+    search.push(["sort",sort]);
+    if (search.length > 0) {
+      params = new URLSearchParams(search);
+      setSearchParams(params);
+    } else {
+      setSearchParams([]);
+    }
     const res = await axios.get(`${apiUrl}/all-courses?${params}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -145,7 +157,7 @@ const AllCourses = () => {
   useEffect(() => {
     fetchCourses();
     console.log(categoryChecked);
-  }, [categoryChecked, levelChecked, languageChecked]);
+  }, [categoryChecked, levelChecked, languageChecked,sort]);
 
   return (
     <Layout>
@@ -165,14 +177,26 @@ const AllCourses = () => {
             <div className="sidebar mb-5 card border-0">
               <div className="card-body shadow">
                 <div className="mb-3 input-group ">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search by keyword"
-                />
-                <button className="btn btn-primary btn-sm">Search</button>
+                  <input
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    // TRIGGER 1: Press Enter Key
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        fetchCourses();
+                      }
+                    }}
+                    type="text"
+                    className="form-control"
+                    placeholder="Search by keyword"
+                  />
+                  <button
+                    onClick={fetchCourses}
+                    className="btn btn-primary btn-sm"
+                  >
+                    Search
+                  </button>
                 </div>
-                
 
                 <div className="pt-3">
                   <h3 className="h5 mb-2">Category</h3>
@@ -288,9 +312,9 @@ const AllCourses = () => {
               <div className="d-flex justify-content-between mb-3 align-items-center">
                 <div className="h5 mb-0">{/* 10 courses found */}</div>
                 <div>
-                  <select name="" id="" className="form-select">
-                    <option value="0">Newset First</option>
-                    <option value="1">Oldest First</option>
+                  <select value={sort} onChange={(e)=>{setSort(e.target.value)}} className="form-select">
+                    <option value="desc">Newset First</option>
+                    <option value="asc">Oldest First</option>
                   </select>
                 </div>
               </div>

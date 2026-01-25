@@ -147,7 +147,7 @@ const EditLesson = ({ placeholder }) => {
               <div className="d-flex justify-content-between">
                 <h2 className="h4 mb-0 pb-0">Edit Lesson</h2>
                 <Link
-                  to={`/account/courses/update/${params.courseId}`}
+                  to={`/account/courses/edit/${params.courseId}`}
                   className="btn btn-primary"
                 >
                   Back
