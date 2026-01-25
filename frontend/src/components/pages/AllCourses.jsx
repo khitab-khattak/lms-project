@@ -4,6 +4,7 @@ import Course from "../common/Course";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl, token } from "../common/Config";
+import { Link } from "react-router-dom";
 
 const AllCourses = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -149,6 +150,15 @@ const AllCourses = () => {
       console.log("something went wrong");
     }
   };
+
+  const clearFliters = ()=>{
+    setCategoryChecked([]);
+    setLevelChecked([]);
+    setLanguageChecked([]);
+    setKeyword("");
+
+    document.querySelectorAll('.form-check-input').forEach(element=>element.checked=false);
+  }
   useEffect(() => {
     fetchlanguages();
     fetchCategories();
@@ -301,9 +311,9 @@ const AllCourses = () => {
                     })}
                   </ul>
                 </div>
-                <a href="" className="clear-filter">
+                <Link onClick={clearFliters} href="" className="clear-filter">
                   Clear All Filters
-                </a>
+                </Link>
               </div>
             </div>
           </div>
