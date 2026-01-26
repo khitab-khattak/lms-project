@@ -5,6 +5,8 @@ import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl, token } from "../common/Config";
 import { Link } from "react-router-dom";
+import Loading from "../common/Loading";
+import NotFound from "../common/NotFound";
 
 const AllCourses = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -12,8 +14,9 @@ const AllCourses = () => {
   const [levels, setLevels] = useState([]);
   const [languages, setLanguages] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [sort,setSort] = useState('desc');
+  const [sort, setSort] = useState("desc");
   const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [categoryChecked, setCategoryChecked] = useState(() => {
     const category = searchParams.get("category");
     return category ? category.split(",") : [];
@@ -57,6 +60,7 @@ const AllCourses = () => {
   };
 
   const fetchCourses = async () => {
+    setLoading(true);
     let search = [];
     let params = "";
     if (categoryChecked.length > 0) {
@@ -85,8 +89,8 @@ const AllCourses = () => {
     if (keyword.length > 0) {
       search.push(["keyword", keyword]);
     }
-    
-    search.push(["sort",sort]);
+
+    search.push(["sort", sort]);
     if (search.length > 0) {
       params = new URLSearchParams(search);
       setSearchParams(params);
@@ -102,6 +106,7 @@ const AllCourses = () => {
     });
     if (res.data.status == 200) {
       setCourses(res.data.courses);
+      setLoading(false);
     } else {
       console.log("something went wrong");
     }
@@ -151,14 +156,16 @@ const AllCourses = () => {
     }
   };
 
-  const clearFliters = ()=>{
+  const clearFilters = () => {
     setCategoryChecked([]);
     setLevelChecked([]);
     setLanguageChecked([]);
     setKeyword("");
 
-    document.querySelectorAll('.form-check-input').forEach(element=>element.checked=false);
-  }
+    document
+      .querySelectorAll(".form-check-input")
+      .forEach((element) => (element.checked = false));
+  };
   useEffect(() => {
     fetchlanguages();
     fetchCategories();
@@ -167,7 +174,7 @@ const AllCourses = () => {
   useEffect(() => {
     fetchCourses();
     console.log(categoryChecked);
-  }, [categoryChecked, levelChecked, languageChecked,sort]);
+  }, [categoryChecked, levelChecked, languageChecked, sort]);
 
   return (
     <Layout>
@@ -311,7 +318,7 @@ const AllCourses = () => {
                     })}
                   </ul>
                 </div>
-                <Link onClick={clearFliters} href="" className="clear-filter">
+                <Link onClick={clearFilters} href="" className="clear-filter">
                   Clear All Filters
                 </Link>
               </div>
@@ -322,23 +329,38 @@ const AllCourses = () => {
               <div className="d-flex justify-content-between mb-3 align-items-center">
                 <div className="h5 mb-0">{/* 10 courses found */}</div>
                 <div>
-                  <select value={sort} onChange={(e)=>{setSort(e.target.value)}} className="form-select">
+                  <select
+                    value={sort}
+                    onChange={(e) => {
+                      setSort(e.target.value);
+                    }}
+                    className="form-select"
+                  >
                     <option value="desc">Newset First</option>
                     <option value="asc">Oldest First</option>
                   </select>
                 </div>
               </div>
-              <div className="row gy-4">
-                {courses.map((course) => {
-                  return (
+              <div className="row gy-4 min-vh-50">
+                {loading ? (
+                  /* 1. Loading State */
+                  <div className="col-12 py-5 d-flex justify-content-center">
+                    <Loading text="Fetching courses..." />
+                  </div>
+                ) : courses.length === 0 ? (
+                  /* 2. Empty/Not Found State */
+                  <NotFound text="No Courses Found" clearFilters = {clearFilters} />
+                ) : (
+                  /* 3. Results State */
+                  courses.map((course) => (
                     <Course
                       course={course}
                       key={course.id}
                       enrolled="10"
-                      customClasses="col-lg-4 col-md-6"
+                      customClasses="col-lg-4 col-md-6 animate__animated animate__fadeIn"
                     />
-                  );
-                })}
+                  ))
+                )}
               </div>
             </section>
           </div>
