@@ -5,9 +5,11 @@ namespace App\Http\Controllers\front;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Language;
 use App\Models\Level;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -158,6 +160,43 @@ class HomeController extends Controller
             'status' => 200,
             'message' => 'Course details retrieved successfully',
             'course' => $course
-        ]);
+        ],200);
+    }
+
+    public function enroll(Request $request)
+    {
+        // 1. Fix the Course check (Assuming you are passing course_id in the request)
+        $course = Course::find($request->course_id); 
+        
+        if (!$course) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Course Not Found',
+            ], 404);
+        }
+    
+        // 2. Fix the Duplicate Check (You must add ->count() at the end)
+        $count = Enrollment::where('user_id', $request->user()->id)
+                           ->where('course_id', $request->course_id)
+                           ->count(); // ✅ Crucial: actually run the count query
+    
+        if ($count > 0) {
+            return response()->json([
+                'status' => 409,
+                'message' => 'Already Enrolled',
+            ], 409);
+        }
+    
+        // 3. Save Enrollment
+        $enrolluser = new Enrollment();
+        $enrolluser->user_id = $request->user()->id;
+        $enrolluser->course_id = $request->course_id;
+        $enrolluser->save();
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'User Enrolled Successfully',
+            'enroll' => $enrolluser
+        ], 200);
     }
 }

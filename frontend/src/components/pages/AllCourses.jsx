@@ -99,7 +99,6 @@ const AllCourses = () => {
     }
     const res = await axios.get(`${apiUrl}/all-courses?${params}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         "content-type": "application/json",
       },
@@ -114,7 +113,6 @@ const AllCourses = () => {
   const fetchCategories = async () => {
     const res = await axios.get(`${apiUrl}/fetch-categories`, {
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         "content-type": "application/json",
       },
@@ -144,7 +142,6 @@ const AllCourses = () => {
   const fetchlanguages = async () => {
     const res = await axios.get(`${apiUrl}/languages`, {
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         "content-type": "application/json",
       },

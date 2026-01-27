@@ -9,6 +9,7 @@ use App\Http\Controllers\front\ChapterController;
 use App\Http\Controllers\front\HomeController;
 use App\Http\Controllers\front\LessonController;
 use App\Http\Controllers\front\RequirementController;
+
 use App\Models\Course;
 
 Route::post('/register', [AccountController::class, 'register']);
@@ -58,15 +59,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/my-courses', [AccountController::class, 'courses']);
     Route::delete('/course/delete/{id}', [CourseController::class, 'deleteCourse']);
-    Route::get('/fetch-categories',[HomeController::class,'fetch_categories']);
+    
+    //single course
+    
+    Route::post('/enroll',[HomeController::class,'enroll']);
+});
+Route::get('/course/{id}',[HomeController::class,'course']);
+Route::get('/all-courses',[HomeController::class,'courses']);
+Route::get('/fetch-categories',[HomeController::class,'fetch_categories']);
     Route::get('/featured-courses',[HomeController::class,'featuredCourses']);
-    Route::get('/all-courses',[HomeController::class,'courses']);
     Route::get('/levels',[HomeController::class,'levels']);
     Route::get('/languages',[HomeController::class,'languages']);
-    //single course
-    Route::get('/course/{id}',[HomeController::class,'course']);
-});
-
 
 
 Route::get('/user', function (Request $request) {

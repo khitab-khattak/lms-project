@@ -9,6 +9,8 @@ import { useParams } from "react-router-dom";
 import { LuMonitorPlay } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import FreePreview from "../common/FreePreview";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Detail = () => {
   const [show, setShow] = useState(false);
@@ -18,13 +20,13 @@ const Detail = () => {
     setFreeLesson(lesson);
     setShow(true);
   };
+  const navigate = useNavigate();
   const { courseId } = useParams();
   const [course, setCourse] = useState({});
   const fetchCourse = async (courseId) => {
     try {
       const res = await axios.get(`${apiUrl}/course/${courseId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "Content-Type": "application/json",
         },
@@ -32,11 +34,35 @@ const Detail = () => {
 
       if (res.data.status === 200) {
         setCourse(res.data.course);
-        console.log(res.data.course);
       }
     } catch (error) {
       console.error("Error fetching course data:", error);
     }
+  };
+  const enroll = async (courseId) => {
+    if (!courseId) return;
+    try {
+      const res = await axios.post(`${apiUrl}/enroll`, 
+        { course_id: courseId }, 
+        { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
+      );
+  
+      if (res.data.status === 200) {
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      const status = error.response?.status;
+      const message = error.response?.data?.message;
+  
+      if (status === 409) {
+        toast.error(message || "Already Enrolled");
+      } else if (status === 401) {
+        toast.error("Please login to enroll in the course");
+        navigate('/account/login')
+      } else {
+        toast.error("Something went wrong");
+      }
+    } 
   };
   useEffect(() => {
     if (courseId) {
@@ -118,7 +144,7 @@ const Detail = () => {
                     {course.outcomes &&
                       course.outcomes.map((outcome) => {
                         return (
-                          <li className="d-flex align-items-center mb-2">
+                          <li key={outcome.id} className="d-flex align-items-center mb-2">
                             <span className="text-success me-2">&#10003;</span>
                             <span>{outcome.text}</span>
                           </li>
@@ -135,7 +161,7 @@ const Detail = () => {
                     {course.requirements &&
                       course.requirements.map((req) => {
                         return (
-                          <li className="d-flex align-items-center mb-2">
+                          <li key={req.id} className="d-flex align-items-center mb-2">
                             <span className="text-success me-2">&#10003;</span>
                             <span>{req.text}</span>
                           </li>
@@ -280,8 +306,8 @@ const Detail = () => {
                 </div>
                 {/* Buttons */}
                 <div className="mt-4">
-                  <button className="btn btn-primary w-100">
-                    <i className="bi bi-ticket"></i> Buy Now
+                  <button onClick={()=>{enroll(course.id)}} className="btn btn-primary w-100">
+                    <i className="bi bi-ticket"></i> Enroll
                   </button>
                 </div>
               </Card.Body>
