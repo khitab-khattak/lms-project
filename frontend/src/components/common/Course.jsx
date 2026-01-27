@@ -54,7 +54,7 @@ const Course = ({course,customClasses}) => {
                 {course.price == null && <div className="price">$0</div>}
                     
                     <div className="add-to-cart">
-                        <a href="/detail" className="btn btn-primary" >Read More</a>
+                        <a href={`/detail/${course.id}`} className="btn btn-primary" >Read More</a>
                     </div>
                 </div>
             </div>

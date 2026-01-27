@@ -110,4 +110,54 @@ class HomeController extends Controller
             'languages' => $languages,
         ], 200);
     }
+
+    public function course($id)
+    {
+        // 1. Use 'with' to eager load all relationships in one query
+        // 2. Find the course by ID
+        $course = Course::
+        where('id',$id)
+        ->withCount('chapters')
+        ->with([
+            'levels',
+            'category',
+            'language',
+            'requirements',
+            'outcomes',
+            'chapters'=>function($query){
+                $query->withCount(['lessons'=>function($q){
+                    $q->where('status',1);
+                    $q->whereNotNull('video');
+                }]);
+                $query->withSum((['lessons'=>function($q){
+                    $q->where('status',1);
+                    $q->whereNotNull('video');
+                }]),'duration');
+            },
+            'chapters.lessons'=>function($q){
+                $q->where('status',1);
+                $q->whereNotNull('video');
+            }
+        ])->first();
+
+        $totalduration = $course->chapters->sum('lessons_sum_duration');
+        $totallessons = $course->chapters->sum('lessons_count');
+
+        $course->totalduration = $totalduration;
+        $course->totallessons = $totallessons;
+    
+        // Check if course exists to avoid errors
+        if (!$course) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Course not found'
+            ], 404);
+        }
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'Course details retrieved successfully',
+            'course' => $course
+        ]);
+    }
 }

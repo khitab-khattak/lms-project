@@ -24,15 +24,19 @@ function App() {
     <BrowserRouter>
     <Routes>
       <Route path="/" element={<Home/>}/>
-      <Route path="/account/my-courses" element={<MyCourses/>}/>
       <Route path="/courses" element={<AllCourses/>}/>
-      <Route path="/detail" element={<Detail/>}/>
+      <Route path="/detail/:courseId" element={<Detail/>}/>
       <Route path="/account/change-password" element={<ChangePassword/>}/>
       <Route path="/account/login" element={<Login/>}/>
       <Route path="/account/register" element={<Register/>}/>
       <Route path="/account/my-learning" element={<MyLearning/>}/>
       <Route path="/account/watch-course" element={<WatchCourse/>}/>
       <Route path="/header" element={<Layout/>}/>
+      <Route path="/account/my-courses" element={
+        <RequireAuth>
+          <MyCourses/>
+        </RequireAuth>
+        }/>
       <Route path="/account/courses/create" element=
       {
         <RequireAuth>

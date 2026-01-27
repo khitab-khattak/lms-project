@@ -9,6 +9,7 @@ use App\Http\Controllers\front\ChapterController;
 use App\Http\Controllers\front\HomeController;
 use App\Http\Controllers\front\LessonController;
 use App\Http\Controllers\front\RequirementController;
+use App\Models\Course;
 
 Route::post('/register', [AccountController::class, 'register']);
 Route::post('/login', [AccountController::class, 'authenticate']);
@@ -62,6 +63,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/all-courses',[HomeController::class,'courses']);
     Route::get('/levels',[HomeController::class,'levels']);
     Route::get('/languages',[HomeController::class,'languages']);
+    //single course
+    Route::get('/course/{id}',[HomeController::class,'course']);
 });
 
 
