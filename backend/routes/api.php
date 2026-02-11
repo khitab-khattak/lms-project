@@ -59,17 +59,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/my-courses', [AccountController::class, 'courses']);
     Route::delete('/course/delete/{id}', [CourseController::class, 'deleteCourse']);
-    
+
     //single course
-    
-    Route::post('/enroll',[HomeController::class,'enroll']);
+
+    Route::post('/enroll', [HomeController::class, 'enroll']);
+    Route::get('/my-enroll', [AccountController::class, 'enrollments']);
 });
-Route::get('/course/{id}',[HomeController::class,'course']);
-Route::get('/all-courses',[HomeController::class,'courses']);
-Route::get('/fetch-categories',[HomeController::class,'fetch_categories']);
-    Route::get('/featured-courses',[HomeController::class,'featuredCourses']);
-    Route::get('/levels',[HomeController::class,'levels']);
-    Route::get('/languages',[HomeController::class,'languages']);
+    Route::get('/course/{id}', [HomeController::class, 'course']);
+    Route::get('/all-courses', [HomeController::class, 'courses']);
+    Route::get('/fetch-categories', [HomeController::class, 'fetch_categories']);
+    Route::get('/featured-courses', [HomeController::class, 'featuredCourses']);
+    Route::get('/levels', [HomeController::class, 'levels']);
+    Route::get('/languages', [HomeController::class, 'languages']);
 
 
 Route::get('/user', function (Request $request) {
