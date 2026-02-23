@@ -230,11 +230,18 @@ class AccountController extends Controller
                 $activityLesson = null;
             }
         }
+        $completedLessons = Activity::where([
+            'user_id'=> $userId,
+            'course_id'=> $id,
+            'is_completed'=>'yes'
+        ])->pluck('lesson_id')
+        ->toArray();
     
         return response()->json([
             'status' => 200,
             'course' => $course,
-            'activitylesson' => $activityLesson
+            'activitylesson' => $activityLesson,
+            'completedLessons' => $completedLessons
         ], 200);
     }
 
@@ -264,9 +271,35 @@ class AccountController extends Controller
             ]
         );
     
+      
         return response()->json([
             'status' => 200,
             'message' => "User activity saved successfully",
+            
+        ]);
+    }
+
+    public function markAsComplete(Request $request){
+        $userId = $request->user()->id;
+        Activity::where(
+            
+            [
+                'user_id' => $userId,
+                'course_id' => $request->course_id,
+                'lesson_id' => $request->lesson_id,
+                'chapter_id' => $request->chapter_id,
+            ],
+        )->update(
+            [
+                'is_completed' => 'yes',
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]
+        );
+        
+        return response()->json([
+            'status' => 200,
+            'message' => "Lesson mark as completed successfully",
         ]);
     }
 }
