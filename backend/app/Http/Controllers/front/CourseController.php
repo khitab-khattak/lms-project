@@ -170,20 +170,48 @@ class CourseController extends Controller
             'course_small_image' => asset('uploads/course/small/' . $course->image),
         ], 200);
     }
-
     public function changeStatus($id, Request $request)
     {
         $course = Course::find($id);
-        if ($course == null) {
+        if (!$course) {
             return response()->json([
                 'status' => 404,
-                'message' => 'Course Not Found'
+                'message' => 'The requested course could not be found.'
             ], 404);
         }
+    
+        $chapters = Chapter::where('course_id', $id)
+            ->pluck('id')
+            ->toArray();
+    
+        if (count($chapters) == 0) {   // ✅ fixed parentheses
+            return response()->json([
+                'status' => 400,
+                'message' => 'To publish this course, it must contain at least one chapter.',
+                'course' => $course,
+            ], 400);
+        }
+    
+        $lessonsCount = Lesson::whereIn('chapter_id', $chapters)
+            ->where('status', 1)
+            ->whereNotNull('video')
+            ->count();
+    
+        if ($lessonsCount == 0) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Each course requires at least one lesson with a video to be published.',
+                'course' => $course,
+            ], 400);
+        }
+    
         $course->status = $request->status;
         $course->save();
-
-        $message = ($course->status === 1) ? 'Course Published Successfully' : 'Course Unpublished Successfully';
+    
+        $message = ($course->status === 1)
+            ? 'The course has been successfully published and is now visible to students.'
+            : 'The course has been unpublished and is no longer visible to students.';
+    
         return response()->json([
             'status' => 200,
             'message' => $message,

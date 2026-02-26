@@ -104,18 +104,18 @@ const EditCourse = () => {
         }
       );
   
-      if (res.data.status === 200) {
-        toast.success(res.data.message);
-  
-        setCourse(
-         {...course, status:res.data.course.status,}
-        );
-      } else {
-        toast.error(res.data.message || "Failed to update status");
-      }
+      // If backend returns 200
+      toast.success(res.data.message);
+      setCourse({ ...course, status: res.data.course.status });
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong");
+  
+      // Handle backend error messages
+      if (error.response && error.response.data && error.response.data.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     }
   };
   
