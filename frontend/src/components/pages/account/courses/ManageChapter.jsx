@@ -55,10 +55,16 @@ const ManageChapter = ({ params, course }) => {
         return action.payload;
       case "ADD_CHAPTERS":
         return [...state, action.payload];
-      case "UPDATE_CHAPTERS":
-        return state.map((chapter) =>
-          chapter.id === action.payload.id ? action.payload : chapter
-        );
+        case "UPDATE_CHAPTERS":
+          return state.map((chapter) => {
+            if (chapter.id === action.payload.id) {
+              return {
+                ...chapter,          // keep old data (including lessons)
+                ...action.payload,   // overwrite only updated fields
+              };
+            }
+            return chapter;
+          });
       case "DELETE_CHAPTERS":
         return state.filter((chapter) => chapter.id != action.payload.id);
       case "ADD_LESSON_TO_CHAPTER":

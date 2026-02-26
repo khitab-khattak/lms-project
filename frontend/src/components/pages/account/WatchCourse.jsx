@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { apiUrl, token } from "../../common/Config";
 import axios from "axios";
 import ReactPlayer from "react-player";
-import Loading from "../../common/Loading";
+import toast from "react-hot-toast";
 
 const WatchCourse = () => {
     const [course, setCourse] = useState(null);
@@ -99,6 +99,7 @@ const WatchCourse = () => {
                     }
                     return prev;
                 });
+                toast.success(res.data.message);
             }
         } catch (error) {
             console.error(error.response?.data || error.message);
