@@ -60,6 +60,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/my-courses', [AccountController::class, 'courses']);
     Route::delete('/course/delete/{id}', [CourseController::class, 'deleteCourse']);
 
+    //saverating
+    Route::post('/save-rating/{id}', [AccountController::class, 'saveRating']);
+
     //single course
 
     Route::post('/enroll', [HomeController::class, 'enroll']);

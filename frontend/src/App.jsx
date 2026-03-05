@@ -16,6 +16,7 @@ import EditCourse from './components/pages/account/courses/EditCourse'
 import CreateCourse from './components/pages/account/courses/CreateCourse'
 import EditLesson from './components/pages/account/courses/EditLesson'
 import AllCourses from './components/pages/AllCourses'
+import LeaveRating from './components/common/LeaveRating'
 
 function App() {
 
@@ -30,6 +31,13 @@ function App() {
       <Route path="/account/login" element={<Login/>}/>
       <Route path="/account/register" element={<Register/>}/>
       <Route path="/account/my-learning" element={<MyLearning/>}/>
+      <Route path="/account/leave-rating/:id" element=
+      {
+        <RequireAuth>
+          <LeaveRating/>
+        </RequireAuth>
+      }
+      />
       <Route path="/account/watch-course/:id" element=
       {
         <RequireAuth>

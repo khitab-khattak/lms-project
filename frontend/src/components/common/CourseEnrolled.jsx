@@ -49,8 +49,9 @@ const CourseEnrolled = ({enrollment}) => {
         </div>
         <div className="card-footer bg-white">
             <div className="d-flex py-2 justify-content-between align-items-center">
-                <div className="add-to-cart">
+                <div className="flex add-to-cart gap-2">
                     <Link to={`/account/watch-course/${enrollment.course.id}`} className="btn btn-primary" >Watch Now</Link>
+                    <Link to={`/account/leave-rating/${enrollment.course.id}`} className=" ms-3" >Leave Rating</Link>
                 </div>
             </div>
         </div>

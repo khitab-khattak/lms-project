@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Chapter;
 use App\Models\Lesson;
+use App\Models\Review;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -301,5 +302,41 @@ class AccountController extends Controller
             'status' => 200,
             'message' => "Lesson mark as completed successfully",
         ]);
+    }
+
+    public function saveRating(Request $request, $id) {
+        $course = Course::find($id);
+        
+        if ($course == null) {
+            return response()->json([
+                'message' => 'course not found',
+                'status' => 404,
+            ], 404);
+        }
+    
+        // FIX: Use $id here, not $request->course_id
+        $count = Review::where('course_id', $id)
+            ->where('user_id', $request->user()->id)
+            ->count();
+    
+        if ($count > 0) {
+            return response()->json([
+                'status' => 400, // Changed to 400 (Bad Request) so frontend knows it's an error
+                'message' => 'You have already rated this course'
+            ], 400);
+        }
+    
+        $review = new Review();
+        $review->user_id = $request->user()->id;
+        $review->course_id = $id; // Using the URL parameter
+        $review->comment = $request->comment;
+        $review->rating = $request->rating;
+        $review->status = 1;
+        $review->save();
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'Thanks for your Feedback'
+        ], 200);
     }
 }
