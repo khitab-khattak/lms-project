@@ -39,7 +39,7 @@ const LeaveRating = () => {
     
             if (res.data.status === 200) {
                 toast.success(res.data.message);
-                reset();
+                reset({comment:""});
                 setRating(0);
             }
         } catch (error) {

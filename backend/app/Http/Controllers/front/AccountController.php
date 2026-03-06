@@ -72,94 +72,46 @@ class AccountController extends Controller
         $userId = $request->user()->id;
         $courses = Course::where('user_id',$userId)
         ->with('levels')
+        ->withCount('reviews')
+        ->withSum('reviews', 'rating')
         ->get();
+        $courses->map(function ($course) {
+            $course->rating = $course->reviews_count > 0
+                ? round($course->reviews_sum_rating / $course->reviews_count, 1)
+                : 0.0;
+        
+            return $course;
+        });
         return response()->json([
             'status'=>200,
             'courses'=>$courses
         ],200);
     }
 
-    public function enrollments(Request $request){
-        $enroll = Enrollment::where('user_id',$request->user()->id,)->with('course','course.levels')->get();
+    public function enrollments(Request $request)
+    {
+        $enroll = Enrollment::where('user_id', $request->user()->id)
+            ->with(['course' => function ($query) {
+                $query->withCount('reviews')
+                      ->withSum('reviews', 'rating');
+            }],'course.levels')
+            ->get();
+    
+        $enroll->map(function ($item) {
+            if ($item->course) {
+                $item->course->rating = $item->course->reviews_count > 0
+                    ? round($item->course->reviews_sum_rating / $item->course->reviews_count, 1)
+                    : 0.0;
+            }
+    
+            return $item;
+        });
+    
         return response()->json([
             'status' => 200,
-            'enroll'=>$enroll
-        ],200);
+            'enroll' => $enroll
+        ], 200);
     }
-
-    // public function enroll_course($id,Request $request){
-    //     $count = Enrollment::where(
-    //         [
-    //             'user_id'=>$request->user()->id,
-    //             'course_id'=>$id
-    //             ]
-    //             )->count();
-    //     if($count== 0){
-    //         return response()->json([
-    //             'status' => 404,
-    //             'message' => "You can not access this course"
-    //         ],404);
-    //     }
-
-    //     $course = Course::
-    //     where('id',$id)
-    //     ->withCount('chapters')
-    //     ->with([
-    //         'levels',
-    //         'category',
-    //         'language',
-    //         'chapters'=>function($query){
-    //             $query->withCount(['lessons'=>function($q){
-    //                 $q->where('status',1);
-    //                 $q->whereNotNull('video');
-    //             }]);
-    //             $query->withSum((['lessons'=>function($q){
-    //                 $q->where('status',1);
-    //                 $q->whereNotNull('video');
-    //             }]),'duration');
-    //         },
-    //         'chapters.lessons'=>function($q){
-    //             $q->where('status',1);
-    //             $q->whereNotNull('video');
-    //         }
-    //     ])->first();
-    //     //if no activity than show the first lesson of first chapter
-       
-    //     $activityCount = Activity::where([
-    //         'user_id'=>$request->user()->id,
-    //         'course_id'=>$id
-    //     ])->count();
-
-    //     $chapter = Chapter::
-    //     where('course_id', $id)
-    //     ->where('status',1)
-    //     ->orderBy('sort_order','ASC')
-    //     ->first();
-    //     $lesson = Lesson:: 
-    //     where('chapter_id', $chapter->id)
-    //     ->where('status',1)
-    //     ->whereNotNull('video')
-    //     ->orderBy('sort_order','ASC')
-    //     ->first();
-    //     if($activityCount == 0){
-    //          $lesson = collect();
-    //         $activity = new Activity();
-    //         $activity->user_id = $request->user()->id;
-    //         $activity->course_id = $id;
-    //         $activity->chapter_id = $chapter->id;
-    //         $activity->lesson_id = $lesson->id;
-    //         $activity->is_last_watched = "yes";
-    //         $activity->save();
-    //         $activityLesson = $lesson;
-    //     }
-
-       
-    //     return response()->json([
-    //         'status'=>200,
-    //         'course'=>$course,
-    //         'activitylesson'=>$activityLesson
-    //     ],200);
-    // }
 
     public function enroll_course($id, Request $request) {
         $userId = $request->user()->id;

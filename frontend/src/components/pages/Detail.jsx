@@ -42,27 +42,33 @@ const Detail = () => {
   const enroll = async (courseId) => {
     if (!courseId) return;
     try {
-      const res = await axios.post(`${apiUrl}/enroll`, 
-        { course_id: courseId }, 
-        { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
+      const res = await axios.post(
+        `${apiUrl}/enroll`,
+        { course_id: courseId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
       );
-  
+
       if (res.data.status === 200) {
         toast.success(res.data.message);
       }
     } catch (error) {
       const status = error.response?.status;
       const message = error.response?.data?.message;
-  
+
       if (status === 409) {
         toast.error(message || "Already Enrolled");
       } else if (status === 401) {
         toast.error("Please login to enroll in the course");
-        navigate('/account/login')
+        navigate("/account/login");
       } else {
         toast.error("Something went wrong");
       }
-    } 
+    }
   };
   useEffect(() => {
     if (courseId) {
@@ -70,7 +76,6 @@ const Detail = () => {
     }
   }, [courseId]);
 
-  const [rating, setRating] = useState(4.0);
   return (
     <Layout>
       {freeLesson && (
@@ -104,8 +109,8 @@ const Detail = () => {
                 </span>
               </div>
               <div className="d-flex ps-3">
-                <div className="text pe-2 pt-1">5.0</div>
-                <Rating initialValue={rating} size={20} />
+                <div className="text pe-2 pt-1">{course.rating}</div>
+                <Rating readonly={true} initialValue={course.rating} size={20} />
               </div>
             </div>
             <div className="row mt-4">
@@ -144,7 +149,10 @@ const Detail = () => {
                     {course.outcomes &&
                       course.outcomes.map((outcome) => {
                         return (
-                          <li key={outcome.id} className="d-flex align-items-center mb-2">
+                          <li
+                            key={outcome.id}
+                            className="d-flex align-items-center mb-2"
+                          >
                             <span className="text-success me-2">&#10003;</span>
                             <span>{outcome.text}</span>
                           </li>
@@ -161,7 +169,10 @@ const Detail = () => {
                     {course.requirements &&
                       course.requirements.map((req) => {
                         return (
-                          <li key={req.id} className="d-flex align-items-center mb-2">
+                          <li
+                            key={req.id}
+                            className="d-flex align-items-center mb-2"
+                          >
                             <span className="text-success me-2">&#10003;</span>
                             <span>{req.text}</span>
                           </li>
@@ -188,52 +199,67 @@ const Detail = () => {
                     {course.chapters &&
                       course.chapters.map((chapter, index) => {
                         return (
-                            <Accordion.Item eventKey={index.toString()} key={chapter.id}>
+                          <Accordion.Item
+                            eventKey={index.toString()}
+                            key={chapter.id}
+                          >
                             <Accordion.Header>
                               <div className="d-flex align-items-center w-100">
-                                <span className="fw-bold">Module {index + 1}: {chapter.title}</span>
+                                <span className="fw-bold">
+                                  Module {index + 1}: {chapter.title}
+                                </span>
                                 <span className="ms-auto text-muted small me-3">
-                                  {chapter.lessons_count} lectures • {convertMinutesToHours(chapter.lessons_sum_duration)}
+                                  {chapter.lessons_count} lectures •{" "}
+                                  {convertMinutesToHours(
+                                    chapter.lessons_sum_duration
+                                  )}
                                 </span>
                               </div>
                             </Accordion.Header>
                             <Accordion.Body className="bg-light p-2 mt-4">
-                              {chapter.lessons && chapter.lessons.map((lesson) => (
-                                /* ✅ THE KEY GOES ON THE OUTERMOST ELEMENT OF THE MAP */
-                                <div 
-                                  key={lesson.id} 
-                                  className="d-flex justify-content-between align-items-center bg-white border rounded-2 p-2 mb-2 shadow-sm border-primary border-top-0 border-bottom-0 border-end-0"
-                                  style={{ borderLeftWidth: '4px' }}
-                                >
-                                  {/* Left: Icon & Title */}
-                                  <div className="d-flex align-items-center flex-grow-1 overflow-hidden">
-                                    <div className="text-primary ps-1 me-2">
-                                      <LuMonitorPlay size={16} />
+                              {chapter.lessons &&
+                                chapter.lessons.map((lesson) => (
+                                  /* ✅ THE KEY GOES ON THE OUTERMOST ELEMENT OF THE MAP */
+                                  <div
+                                    key={lesson.id}
+                                    className="d-flex justify-content-between align-items-center bg-white border rounded-2 p-2 mb-2 shadow-sm border-primary border-top-0 border-bottom-0 border-end-0"
+                                    style={{ borderLeftWidth: "4px" }}
+                                  >
+                                    {/* Left: Icon & Title */}
+                                    <div className="d-flex align-items-center flex-grow-1 overflow-hidden">
+                                      <div className="text-primary ps-1 me-2">
+                                        <LuMonitorPlay size={16} />
+                                      </div>
+                                      <div className="small fw-semibold text-dark text-truncate">
+                                        {lesson.title}
+                                      </div>
                                     </div>
-                                    <div className="small fw-semibold text-dark text-truncate">
-                                      {lesson.title}
-                                    </div>
-                                  </div>
-                          
-                                  {/* Right: Preview & Time */}
-                                  <div className="d-flex align-items-center flex-shrink-0 ms-2">
-                                    {lesson.is_free_preview === "yes" && (
-                                      <button
-                                        className="btn btn-sm btn-link text-primary fw-bold text-decoration-none p-0 me-3"
-                                        style={{ fontSize: '11px' }}
-                                        onClick={() => handleShow(lesson)}
+
+                                    {/* Right: Preview & Time */}
+                                    <div className="d-flex align-items-center flex-shrink-0 ms-2">
+                                      {lesson.is_free_preview === "yes" && (
+                                        <button
+                                          className="btn btn-sm btn-link text-primary fw-bold text-decoration-none p-0 me-3"
+                                          style={{ fontSize: "11px" }}
+                                          onClick={() => handleShow(lesson)}
+                                        >
+                                          PREVIEW
+                                        </button>
+                                      )}
+
+                                      <span
+                                        className="text-muted border-start ps-2"
+                                        style={{
+                                          fontSize: "11px",
+                                          minWidth: "55px",
+                                        }}
                                       >
-                                        PREVIEW
-                                      </button>
-                                    )}
-                                    
-                                    <span className="text-muted border-start ps-2" style={{ fontSize: '11px', minWidth: '55px' }}>
-                                      <i className="bi bi-clock me-1"></i>
-                                      {convertMinutesToHours(lesson.duration)}
-                                    </span>
+                                        <i className="bi bi-clock me-1"></i>
+                                        {convertMinutesToHours(lesson.duration)}
+                                      </span>
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
                             </Accordion.Body>
                           </Accordion.Item>
                         );
@@ -248,47 +274,45 @@ const Detail = () => {
                   <p>Our student says about this course</p>
 
                   <div className="mt-4">
-                    <div className="d-flex align-items-start mb-4 border-bottom pb-3">
-                      <img
-                        src="https://placehold.co/50"
-                        alt="User"
-                        className="rounded-circle me-3"
-                      />
-                      <div>
-                        <h6 className="mb-0">
-                          Mohit Singh{" "}
-                          <span className="text-muted fs-6">Jan 2, 2025</span>
-                        </h6>
-                        <div className="text-warning mb-2">
-                          <Rating initialValue={rating} size={20} />
+                    {course?.reviews?.map((review) => {
+                      return (
+                        <div
+                          key={review.id}
+                          className="d-flex align-items-start mb-4 border-bottom pb-3"
+                        >
+                          <img
+                            src="https://placehold.co/50"
+                            alt="User"
+                            className="rounded-circle me-3"
+                          />
+                          <div>
+                            <h6 className="mb-0">
+                              {review.user?.name}{" "}
+                              <span className="text-muted fs-6">
+                                {review.created_at
+                                  ? new Date(
+                                      review.created_at
+                                    ).toLocaleDateString("en-GB", {
+                                      day: "numeric",
+                                      month: "long",
+                                      year: "numeric",
+                                    })
+                                  : ""}
+                              </span>
+                            </h6>
+                            <div className="text-warning mb-2">
+                              {/* FIX: Use review.rating here so each user's specific score shows */}
+                              <Rating
+                                initialValue={review.rating}
+                                readonly={true}
+                                size={20}
+                              />
+                            </div>
+                            <p className="mb-0">{review.comment}</p>
+                          </div>
                         </div>
-                        <p className="mb-0">
-                          Quisque et quam lacus amet. Tincidunt auctor phasellus
-                          purus faucibus lectus mattis.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="d-flex align-items-start mb-4  pb-3">
-                      <img
-                        src="https://placehold.co/50"
-                        alt="User"
-                        className="rounded-circle me-3"
-                      />
-                      <div>
-                        <h6 className="mb-0">
-                          mark Doe{" "}
-                          <span className="text-muted fs-6">Jan 10, 2025</span>
-                        </h6>
-                        <div className="text-warning mb-2">
-                          <Rating initialValue={rating} size={20} />
-                        </div>
-                        <p className="mb-0">
-                          Quisque et quam lacus amet. Tincidunt auctor phasellus
-                          purus faucibus lectus mattis.
-                        </p>
-                      </div>
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -306,7 +330,12 @@ const Detail = () => {
                 </div>
                 {/* Buttons */}
                 <div className="mt-4">
-                  <button onClick={()=>{enroll(course.id)}} className="btn btn-primary w-100">
+                  <button
+                    onClick={() => {
+                      enroll(course.id);
+                    }}
+                    className="btn btn-primary w-100"
+                  >
                     <i className="bi bi-ticket"></i> Enroll
                   </button>
                 </div>

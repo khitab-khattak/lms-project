@@ -42,5 +42,9 @@ class Course extends Model
     public function requirements(){
         return $this->hasMany(Requirement::class)->orderBy('sort_order','ASC');
     }
+
+    public function reviews(){
+        return $this->hasMany(Review::class);
+    }
     
 }

@@ -33,7 +33,16 @@ class HomeController extends Controller
             ->where('status', 1)
             ->orderBy('title', 'ASC')
             ->with('levels')
+            ->withCount('reviews')
+            ->withSum('reviews', 'rating')
             ->get();
+            $courses->map(function ($course) {
+                $course->rating = $course->reviews_count > 0
+                    ? round($course->reviews_sum_rating / $course->reviews_count, 1)
+                    : 0.0;
+            
+                return $course;
+            });
         if ($courses == null) {
             return response()->json([
                 'status' => 404,
@@ -48,7 +57,9 @@ class HomeController extends Controller
 
     public function courses(Request $request)
     {
-        $courses = Course::where('status', 1);
+        $courses = Course::where('status', 1)
+        ->withCount('reviews')
+        ->withSum('reviews', 'rating');
         //filter Course by title
         if (!empty($request->keyword)) {
             $courses = $courses->where('title', 'like', '%' . $request->keyword . '%');
@@ -86,8 +97,15 @@ class HomeController extends Controller
             }
         }
 
-        $courses = $courses->orderBy('title','ASC')->get();
+        $courses = $courses->orderBy('title', 'ASC')->get();
 
+        $courses->map(function ($course) {
+            $course->rating = $course->reviews_count > 0
+                ? round($course->reviews_sum_rating / $course->reviews_count, 1)
+                : 0.0;
+        
+            return $course;
+        });
 
         return response()->json([
             'status' => 200,
@@ -97,7 +115,7 @@ class HomeController extends Controller
 
     public function levels()
     {
-        $levels = Level::where('status', 1)->orderBy('created_at','ASC')->get();
+        $levels = Level::where('status', 1)->orderBy('created_at', 'ASC')->get();
         return response()->json([
             'status' => 200,
             'levels' => $levels,
@@ -106,7 +124,7 @@ class HomeController extends Controller
 
     public function languages()
     {
-        $languages = Language::where('status', 1)->orderBy('name','ASC')->get();
+        $languages = Language::where('status', 1)->orderBy('name', 'ASC')->get();
         return response()->json([
             'status' => 200,
             'languages' => $languages,
@@ -117,37 +135,44 @@ class HomeController extends Controller
     {
         // 1. Use 'with' to eager load all relationships in one query
         // 2. Find the course by ID
-        $course = Course::
-        where('id',$id)
-        ->withCount('chapters')
-        ->with([
-            'levels',
-            'category',
-            'language',
-            'requirements',
-            'outcomes',
-            'chapters'=>function($query){
-                $query->withCount(['lessons'=>function($q){
-                    $q->where('status',1);
+        $course = Course::where('id', $id)
+            ->withCount('chapters')
+            ->withCount('reviews')
+            ->withSum('reviews', 'rating')
+            ->with([
+                'levels',
+                'reviews',
+                'reviews.user',
+                'category',
+                'language',
+                'requirements',
+                'outcomes',
+                'chapters' => function ($query) {
+                    $query->withCount(['lessons' => function ($q) {
+                        $q->where('status', 1);
+                        $q->whereNotNull('video');
+                    }]);
+                    $query->withSum((['lessons' => function ($q) {
+                        $q->where('status', 1);
+                        $q->whereNotNull('video');
+                    }]), 'duration');
+                },
+                'chapters.lessons' => function ($q) {
+                    $q->where('status', 1);
                     $q->whereNotNull('video');
-                }]);
-                $query->withSum((['lessons'=>function($q){
-                    $q->where('status',1);
-                    $q->whereNotNull('video');
-                }]),'duration');
-            },
-            'chapters.lessons'=>function($q){
-                $q->where('status',1);
-                $q->whereNotNull('video');
-            }
-        ])->first();
+                }
+            ])->first();
 
         $totalduration = $course->chapters->sum('lessons_sum_duration');
         $totallessons = $course->chapters->sum('lessons_count');
 
         $course->totalduration = $totalduration;
         $course->totallessons = $totallessons;
-    
+        $course->rating = $course->reviews_count > 0
+                ? round($course->reviews_sum_rating / $course->reviews_count, 1)
+                : 0.0;
+        
+
         // Check if course exists to avoid errors
         if (!$course) {
             return response()->json([
@@ -155,44 +180,44 @@ class HomeController extends Controller
                 'message' => 'Course not found'
             ], 404);
         }
-    
+
         return response()->json([
             'status' => 200,
             'message' => 'Course details retrieved successfully',
             'course' => $course
-        ],200);
+        ], 200);
     }
 
     public function enroll(Request $request)
     {
         // 1. Fix the Course check (Assuming you are passing course_id in the request)
-        $course = Course::find($request->course_id); 
-        
+        $course = Course::find($request->course_id);
+
         if (!$course) {
             return response()->json([
                 'status' => 404,
                 'message' => 'Course Not Found',
             ], 404);
         }
-    
+
         // 2. Fix the Duplicate Check (You must add ->count() at the end)
         $count = Enrollment::where('user_id', $request->user()->id)
-                           ->where('course_id', $request->course_id)
-                           ->count(); // ✅ Crucial: actually run the count query
-    
+            ->where('course_id', $request->course_id)
+            ->count(); // ✅ Crucial: actually run the count query
+
         if ($count > 0) {
             return response()->json([
                 'status' => 409,
                 'message' => 'Already Enrolled',
             ], 409);
         }
-    
+
         // 3. Save Enrollment
         $enrolluser = new Enrollment();
         $enrolluser->user_id = $request->user()->id;
         $enrolluser->course_id = $request->course_id;
         $enrolluser->save();
-    
+
         return response()->json([
             'status' => 200,
             'message' => 'User Enrolled Successfully',
