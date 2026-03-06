@@ -126,7 +126,7 @@ const Detail = () => {
               </div>
               <div className="col">
                 <span className="text-muted d-block">Students</span>
-                <span className="fw-bold">150,668</span>
+                <span className="fw-bold">{course.enrollments_count}</span>
               </div>
               <div className="col">
                 <span className="text-muted d-block">Language</span>

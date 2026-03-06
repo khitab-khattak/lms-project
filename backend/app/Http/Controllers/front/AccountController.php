@@ -74,6 +74,7 @@ class AccountController extends Controller
         ->with('levels')
         ->withCount('reviews')
         ->withSum('reviews', 'rating')
+        ->withCount('enrollments')
         ->get();
         $courses->map(function ($course) {
             $course->rating = $course->reviews_count > 0
@@ -91,11 +92,15 @@ class AccountController extends Controller
     public function enrollments(Request $request)
     {
         $enroll = Enrollment::where('user_id', $request->user()->id)
-            ->with(['course' => function ($query) {
+        ->with([
+            'course' => function ($query) {
                 $query->withCount('reviews')
-                      ->withSum('reviews', 'rating');
-            }],'course.levels')
-            ->get();
+                      ->withSum('reviews', 'rating')
+                      ->withCount('enrollments');
+            },
+            'course.levels'
+        ])
+        ->get();
     
         $enroll->map(function ($item) {
             if ($item->course) {

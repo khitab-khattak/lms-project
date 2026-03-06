@@ -35,6 +35,7 @@ class HomeController extends Controller
             ->with('levels')
             ->withCount('reviews')
             ->withSum('reviews', 'rating')
+            ->withCount('enrollments')
             ->get();
             $courses->map(function ($course) {
                 $course->rating = $course->reviews_count > 0
@@ -58,7 +59,9 @@ class HomeController extends Controller
     public function courses(Request $request)
     {
         $courses = Course::where('status', 1)
+        ->with('levels')
         ->withCount('reviews')
+        ->withCount('enrollments')
         ->withSum('reviews', 'rating');
         //filter Course by title
         if (!empty($request->keyword)) {
@@ -139,6 +142,7 @@ class HomeController extends Controller
             ->withCount('chapters')
             ->withCount('reviews')
             ->withSum('reviews', 'rating')
+            ->withCount('enrollments')
             ->with([
                 'levels',
                 'reviews',
