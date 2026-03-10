@@ -6,6 +6,7 @@ import { BsMortarboardFill } from 'react-icons/bs'
 import { MdLogout } from 'react-icons/md'
 import { useContext } from 'react'
 import { AuthContext } from '../context/Auth'
+import { MdAccountCircle } from "react-icons/md";
 
 const UserSidebar = () => {
     const {logout} = useContext(AuthContext)
@@ -17,7 +18,9 @@ const UserSidebar = () => {
                 <li className='d-flex align-items-center'>
                     <Link to="/account/dashboard"><FaChartBar  size={16} className='me-2 ' /> Dashboard</Link>
                 </li>
-               
+                <li  className='d-flex align-items-center'>
+                    <Link to="/my-account"><MdAccountCircle   size={16} className='me-2' /> My Profile</Link>
+                </li>
                 <li  className='d-flex align-items-center'>
                     <Link to="/account/my-learning"><BsMortarboardFill  size={16} className='me-2' /> My Learning</Link>
                 </li>

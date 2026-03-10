@@ -4,7 +4,9 @@ import CourseEnrolled from "../../common/CourseEnrolled";
 import UserSidebar from "../../common/UserSidebar";
 import axios from "axios";
 import { apiUrl, token } from "../../common/Config";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import Loading from "../../common/Loading";
 
 const MyLearning = () => {
   const [enrollments, setEnrollments] = useState([]);
@@ -41,7 +43,13 @@ const MyLearning = () => {
   return (
     <Layout>
       <section className="section-4">
-        <div className="container">
+        <div className="container pb-5 pt-3">
+        <nav aria-label="breadcrumb">
+					<ol className="breadcrumb">
+						<li className="breadcrumb-item"><Link to="/account">Account</Link></li>
+						<li className="breadcrumb-item active" aria-current="page">My Learning</li>
+					</ol>
+				</nav>
           <div className="row">
             <div className="d-flex justify-content-between mt-5 mb-3">
               <h2 className="h4 mb-0 pb-0">My Learning</h2>
@@ -55,11 +63,7 @@ const MyLearning = () => {
               <div className="row gy-4">
                 
                 {loading ? (
-                  <div className="col-12 text-center py-5">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                  </div>
+                 <Loading/>
                 ) : enrollments.length > 0 ? (
                   enrollments.map((enrollment) => (
                     <CourseEnrolled

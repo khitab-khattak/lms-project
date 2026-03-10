@@ -296,4 +296,78 @@ class AccountController extends Controller
             'message' => 'Thanks for your Feedback'
         ], 200);
     }
+
+    public function fetchUser(Request $request){
+        $user = User::find($request->user()->id);
+        if($user == null){
+            return response()->json([
+                'status' => 404,
+                'message' => 'user not Found'
+            ],404);
+        }
+        return response()->json([
+            'status' => 200,
+            'message'=>'User fetch Successfully',
+            'user' => $user
+        ],200);
+
+    }
+    public function UpdateUser(Request $request){
+        $user = User::find($request->user()->id);
+        if($user == null){
+            return response()->json([
+                'status' => 404,
+                'message' => 'user not Found'
+            ],404);
+        }
+        $validator = Validator::make($request->all(),[
+            'name'=>'required',
+            'email'=>'required|email|unique:users,email,'.$request->user()->id.',id',
+        ]);
+        if($validator->fails()){
+            return response()->json([
+                'errors' => $validator->errors()
+            ],422);
+        }
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->save();
+        return response()->json([
+            'status' => 200,
+            'message'=>'Profile Updated Successfully'
+        ],200);
+
+    }
+
+    public function updatePassword(Request $request)
+{
+    $user = User::find($request->user()->id);
+
+    $validator = Validator::make($request->all(),[
+        'old_password' => 'required',
+        'new_password' => 'required|min:4'
+    ]);
+
+    if($validator->fails()){
+        return response()->json([
+            'errors' => $validator->errors()
+        ],422);
+    }
+
+    if (!Hash::check($request->old_password, $user->password)){
+        return response()->json([
+            'errors'=>[
+                'old_password'=>['The old password is incorrect']
+            ]
+        ],422);
+    }
+
+    $user->password = $request->new_password;
+    $user->save();
+
+    return response()->json([
+        'status'=>200,
+        'message'=>'Password Changed Successfully'
+    ],200);
+}
 }

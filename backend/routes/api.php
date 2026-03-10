@@ -62,6 +62,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //saverating
     Route::post('/save-rating/{id}', [AccountController::class, 'saveRating']);
+    Route::get('/fetch-user', [AccountController::class, 'fetchUser']);
+    Route::post('/update-user', [AccountController::class, 'UpdateUser']);
+    Route::post('/update-password', [AccountController::class, 'UpdatePassword']);
 
     //single course
 
@@ -70,6 +73,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/enroll/{id}',[AccountController::class,'enroll_course']);
     Route::post('/save-activity',[AccountController::class,'saveUserActivity']);
     Route::post('/mark-as-complete', [AccountController::class, 'markAsComplete']);
+    
     
 });
     Route::get('/course/{id}', [HomeController::class, 'course']);

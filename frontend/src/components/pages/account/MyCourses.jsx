@@ -6,6 +6,7 @@ import { apiUrl, token } from "../../common/Config";
 import toast from "react-hot-toast";
 import axios from "axios";
 import CourseEdit from "../../common/CourseEdit";
+import Loading from "../../common/Loading";
 
 const MyCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -62,7 +63,13 @@ const MyCourses = () => {
   return (
     <Layout>
       <section className="section-4">
-        <div className="container">
+        <div className="container pb-5 pt-3">
+          <nav aria-label="breadcrumb">
+                    <ol className="breadcrumb">
+                      <li className="breadcrumb-item"><Link to="/account">Account</Link></li>
+                      <li className="breadcrumb-item active" aria-current="page">My Courses</li>
+                    </ol>
+                  </nav>
           <div className="row">
             <div className="col-md-12 mt-5 mb-3">
               <div className="d-flex justify-content-between">
@@ -81,11 +88,7 @@ const MyCourses = () => {
               <div className="row gy-4">
 
                 {loading ? (
-                  <div className="col-12 text-center py-5">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                  </div>
+                 <Loading/>
                 ) : courses?.length > 0 ? (
                   courses.map((course) => (
                     <CourseEdit
