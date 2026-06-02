@@ -84,8 +84,8 @@ const CourseEdit = ({ course, handleDelete }) => {
           </div>
         </div>
         <div className="card-footer bg-white">
-          <div className="d-flex py-2 justify-content-between align-items-center">
-            <div className="add-to-cart d-flex gap-2">
+          <div className="d-flex py-2 justify-content-between align-items-center w-100">
+            
               <Link
                 to={`/account/courses/edit/${course.id}`}
                 className="btn btn-primary"
@@ -98,7 +98,7 @@ const CourseEdit = ({ course, handleDelete }) => {
               >
                 Delete
               </Link>
-            </div>
+            
           </div>
         </div>
       </div>
